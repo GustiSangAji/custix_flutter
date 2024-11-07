@@ -15,41 +15,28 @@ class SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
-    _animateLogo();
+    _animateLogo();  // Cukup panggil animateLogo untuk memeriksa login dan animasi
   }
 
   // Fungsi untuk menambahkan animasi fade-in pada logo
   Future<void> _animateLogo() async {
-    await Future.delayed(
-        Duration(milliseconds: 500)); // Tunggu sebentar sebelum animasi dimulai
+    await Future.delayed(Duration(milliseconds: 500)); // Tunggu sebentar sebelum animasi dimulai
+
     setState(() {
       _isVisible = true; // Menampilkan logo dengan animasi fade-in
     });
 
-    // Menunggu beberapa detik untuk animasi selesai, kemudian arahkan ke halaman login dengan animasi
+    // Menunggu beberapa detik untuk animasi selesai, kemudian arahkan ke halaman login atau home
     await Future.delayed(Duration(seconds: 3));
 
-    // Setelah animasi selesai, arahkan ke halaman login
     bool isLoggedIn = await _authRepository.checkLoginStatus();
 
     if (isLoggedIn) {
-      Navigator.pushReplacementNamed(
-          context, '/home'); // Halaman utama jika sudah login
-    } else {
-      Navigator.pushReplacementNamed(
-          context, '/signin'); // Halaman login jika belum login
-    }
-  }
-
-  Future<void> _checkLoginStatus() async {
-    bool isLoggedIn = await _authRepository.checkLoginStatus();
-
-    if (isLoggedIn) {
+      // Jika sudah login, arahkan ke halaman home
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      // Halaman login akan muncul setelah animasi selesai
-      // Tapi sudah diatur untuk muncul dalam _animateLogo()
+      // Jika belum login, arahkan ke halaman signin
+      Navigator.pushReplacementNamed(context, '/signin');
     }
   }
 
@@ -68,9 +55,7 @@ class SplashScreenState extends State<SplashScreen> {
                 height: 100, // Ukuran logo
                 width: 100, // Ukuran logo
               ),
-              SizedBox(
-                  height:
-                      20), // Memberikan jarak antara logo dan loading spinner
+              SizedBox(height: 20), // Memberikan jarak antara logo dan loading spinner
               CircularProgressIndicator(), // Spinner untuk menunjukkan loading
             ],
           ),

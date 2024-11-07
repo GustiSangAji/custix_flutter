@@ -12,7 +12,7 @@ class HomeScreen extends StatelessWidget {
         context, '/signin'); // Kembali ke halaman login
   }
 
-  // Tambahkan BuildContext pada parameter _onMenuSelected
+  // Fungsi untuk menangani pemilihan menu
   void _onMenuSelected(BuildContext context, String value) {
     switch (value) {
       case 'profile':
@@ -22,6 +22,11 @@ class HomeScreen extends StatelessWidget {
       case 'settings':
         print('Settings clicked');
         // Navigasi ke halaman settings
+        break;
+      case 'dashboard':
+        print('Dashboard clicked');
+        // Navigasi ke halaman dashboard
+        Navigator.pushNamed(context, '/dashboard');
         break;
       case 'logout':
         print('Logout clicked');
@@ -42,25 +47,25 @@ class HomeScreen extends StatelessWidget {
         ),
         actions: [
           PopupMenuButton<String>(
-            // Pass context to _onMenuSelected
+            // Pass context ke _onMenuSelected
             onSelected: (value) => _onMenuSelected(context, value),
             itemBuilder: (BuildContext context) {
               return [
                 PopupMenuItem<String>(
                   value: 'profile',
-                  child: Text('Profile'),
+                  child: const Text('Profile'),
                 ),
                 PopupMenuItem<String>(
                   value: 'dashboard',
-                  child: Text('Dashboard'),
+                  child: const Text('Dashboard'),
                 ),
                 PopupMenuItem<String>(
                   value: 'settings',
-                  child: Text('Settings'),
+                  child: const Text('Settings'),
                 ),
                 PopupMenuItem<String>(
                   value: 'logout',
-                  child: Text('Logout'),
+                  child: const Text('Logout'),
                 ),
               ];
             },
@@ -68,7 +73,7 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: Text("Selamat Datang di Halaman Utama!"),
+        child: const Text("Selamat Datang di Halaman Utama!"),
       ),
     );
   }

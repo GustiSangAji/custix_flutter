@@ -2,6 +2,7 @@ import 'package:custix/screen/home.dart';
 import 'package:flutter/material.dart';
 import 'package:custix/screen/loading.dart' as loading_screen;
 import 'package:custix/screen/signin.dart' as signin_screen;
+import 'package:custix/screen/dashboard.dart'; // Tambahkan ini untuk mengimpor Dashboard
 
 void main() {
   runApp(const MyApp());
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => loading_screen.SplashScreen(), // Splash Screen
         '/home': (context) => HomeScreen(),
         '/signin': (context) => signin_screen.SignInScreen(), // Halaman login
+        '/dashboard': (context) => Dashboard(), // Rute untuk Dashboard
       },
       theme: ThemeData(
         colorScheme: const ColorScheme(
@@ -76,6 +78,13 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/dashboard'); // Navigasi ke Dashboard
+              },
+              child: const Text('Go to Dashboard'),
             ),
           ],
         ),
