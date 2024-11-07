@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthRepository {
   Future<bool> login(String email, String password) async {
     final response = await http.post(
-      Uri.parse('http://192.168.2.152:8000/api/auth/login'),
+      Uri.parse('http://192.168.2.101:8000/api/auth/login'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json', // Menambahkan header JSON
