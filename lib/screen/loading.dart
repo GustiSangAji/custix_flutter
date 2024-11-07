@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:custix/api/auth.dart';
+import 'package:lottie/lottie.dart'; // Import Lottie
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,24 +22,20 @@ class SplashScreenState extends State<SplashScreen> {
 
   // Fungsi untuk menambahkan animasi fade-in pada logo
   Future<void> _animateLogo() async {
-    await Future.delayed(
-        Duration(milliseconds: 500)); // Tunggu sebentar sebelum animasi dimulai
+    await Future.delayed(Duration(milliseconds: 500));
     setState(() {
-      _isVisible = true; // Menampilkan logo dengan animasi fade-in
+      _isVisible = true;
     });
 
-    // Menunggu beberapa detik untuk animasi selesai, kemudian arahkan ke halaman login dengan animasi
-    await Future.delayed(Duration(seconds: 3));
+    // Menunggu beberapa detik untuk animasi selesai, kemudian arahkan ke halaman login
+    await Future.delayed(Duration(milliseconds: 4500));
 
-    // Setelah animasi selesai, arahkan ke halaman login
     bool isLoggedIn = await _authRepository.checkLoginStatus();
 
     if (isLoggedIn) {
-      Navigator.pushReplacementNamed(
-          context, '/home'); // Halaman utama jika sudah login
+      Navigator.pushReplacementNamed(context, '/home');
     } else {
-      Navigator.pushReplacementNamed(
-          context, '/signin'); // Halaman login jika belum login
+      Navigator.pushReplacementNamed(context, '/signin');
     }
   }
 
@@ -47,9 +44,6 @@ class SplashScreenState extends State<SplashScreen> {
 
     if (isLoggedIn) {
       Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      // Halaman login akan muncul setelah animasi selesai
-      // Tapi sudah diatur untuk muncul dalam _animateLogo()
     }
   }
 
@@ -58,20 +52,17 @@ class SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Center(
         child: AnimatedOpacity(
-          opacity: _isVisible ? 1.0 : 0.0, // Membuat logo muncul dengan fade-in
-          duration: Duration(seconds: 2), // Durasi animasi
+          opacity: _isVisible ? 1.0 : 0.0,
+          duration: Duration(seconds: 0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset(
-                'assets/images/cuslogo.png', // Path ke logo Anda
-                height: 100, // Ukuran logo
-                width: 100, // Ukuran logo
+              Lottie.asset(
+                'assets/animation/cusloading1.json', // Path ke file Lottie
+                height: 250,
+                width: 250,
               ),
-              SizedBox(
-                  height:
-                      20), // Memberikan jarak antara logo dan loading spinner
-              CircularProgressIndicator(), // Spinner untuk menunjukkan loading
+              SizedBox(height: 20),
             ],
           ),
         ),
