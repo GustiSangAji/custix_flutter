@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthRepository {
   Future<bool> login(String email, String password) async {
     final response = await http.post(
-      Uri.parse('http://192.168.2.152:8000/api/auth/login'),
+      Uri.parse('http://192.168.2.140:8000/api/auth/login'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json', // Menambahkan header JSON
@@ -43,4 +43,60 @@ class AuthRepository {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool('isLoggedIn') ?? false;
   }
+
+  Future<bool> register(String name, String email, String password) async {
+    final response = await http.post(
+      Uri.parse('http://192.168.2.140:8000/api/auth/register'), // Sesuaikan URL
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({
+        'name': name,
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      final json = jsonDecode(response.body);
+      final authResponse = AuthResponse.fromJson(json);
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', authResponse.token);
+      await prefs.setBool('isLoggedIn', true);
+
+      return true;
+    } else {
+      final errorResponse = jsonDecode(response.body);
+      throw Exception('Signup failed: ${errorResponse['message']}');
+    }
+  }
+
+  Future<bool> verifyOtp(String otp) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token'); // Mendapatkan token autentikasi
+
+    final response = await http.post(
+      Uri.parse('http://192.168.2.40:8000/api/auth/register/get/email/otp'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'otp': otp, // Mengirimkan OTP untuk verifikasi
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      prefs.setBool('isOtpRequired',
+          false); // Jika OTP valid, setel status OTP tidak diperlukan lagi
+      return true;
+    } else {
+      final errorResponse = jsonDecode(response.body);
+      throw Exception('Verifikasi OTP gagal: ${errorResponse['message']}');
+    }
+  }
 }
+
