@@ -27,7 +27,7 @@ class Product {
 
 final List<Product> products= [
   Product(
-    title: "Wireless Headphones",
+    title: "Indonesia Blackchain Week 2024",
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec massa sapien faucibus et molestie ac feugiat. In massa tempor nec feugiat nisl. Libero id faucibus nisl tincidunt.",
     image: "assets/images/pasuruan.jpg",
@@ -44,7 +44,7 @@ final List<Product> products= [
     quantity: 1,
   ),
   Product(
-    title: "Woman Sweter",
+    title: "Indonesia Blackchain Week 2024",
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec massa sapien faucibus et molestie ac feugiat. In massa tempor nec feugiat nisl. Libero id faucibus nisl tincidunt.",
     image: "assets/images/pasuruan.jpg",
@@ -61,7 +61,7 @@ final List<Product> products= [
     quantity: 1,
   ),
   Product(
-    title: "Smart Watch",
+    title: "Indonesia Blackchain Week 2024",
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec massa sapien faucibus et molestie ac feugiat. In massa tempor nec feugiat nisl. Libero id faucibus nisl tincidunt.",
     image: "assets/images/pasuruan.jpg",
@@ -78,7 +78,7 @@ final List<Product> products= [
     quantity: 1,
   ),
   Product(
-    title: "Mens Jacket",
+    title: "Indonesia Blackchain Week 2024",
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec massa sapien faucibus et molestie ac feugiat. In massa tempor nec feugiat nisl. Libero id faucibus nisl tincidunt.",
     image: "assets/images/pasuruan.jpg",
@@ -95,7 +95,7 @@ final List<Product> products= [
     quantity: 1,
   ),
    Product(
-    title: "Watch",
+    title: "Indonesia Blackchain Week 2024",
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec massa sapien faucibus et molestie ac feugiat. In massa tempor nec feugiat nisl. Libero id faucibus nisl tincidunt.",
     image: "assets/images/pasuruan.jpg",
@@ -112,7 +112,7 @@ final List<Product> products= [
     quantity: 1,
   ),
    Product(
-    title: "Air Jordan",
+    title: "Indonesia Blackchain Week 2024",
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec massa sapien faucibus et molestie ac feugiat. In massa tempor nec feugiat nisl. Libero id faucibus nisl tincidunt.",
     image: "assets/images/pasuruan.jpg",
@@ -129,7 +129,7 @@ final List<Product> products= [
     quantity: 1,
   ),
   Product(
-    title: "Super Perfume",
+    title: "Indonesia Blackchain Week 2024",
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec massa sapien faucibus et molestie ac feugiat. In massa tempor nec feugiat nisl. Libero id faucibus nisl tincidunt.",
     image: "assets/images/pasuruan.jpg",
@@ -146,7 +146,7 @@ final List<Product> products= [
     quantity: 1,
   ),
   Product(
-    title: "Wedding Ring",
+    title: "Indonesia Blackchain Week 2024",
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec massa sapien faucibus et molestie ac feugiat. In massa tempor nec feugiat nisl. Libero id faucibus nisl tincidunt.",
     image: "assets/images/pasuruan.jpg",

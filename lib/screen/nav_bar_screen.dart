@@ -1,8 +1,8 @@
 import 'package:custix/screen/Cart/cart_screen.dart';
 import 'package:custix/screen/Home/home_screen.dart';
 import 'package:custix/screen/favorite.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'constants.dart';
 
 class BottomNavBar extends StatefulWidget {
@@ -32,8 +32,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
         },
         shape: const CircleBorder(),
         backgroundColor: kprimaryColor,
-        child: const Icon(
-          Icons.home,
+         child: const Icon(
+          CupertinoIcons.ticket, // Menggunakan ikon tiket dari CupertinoIcons
           color: Colors.white,
           size: 35,
         ),
