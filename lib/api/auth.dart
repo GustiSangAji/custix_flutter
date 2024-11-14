@@ -19,6 +19,11 @@ class AuthResponse {
   }
 }
 
+Future<void> _saveToken(String token) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('auth_token', token);
+}
+
 class AuthRepository {
   // Fungsi untuk mendapatkan token
   Future<String?> getToken() async {

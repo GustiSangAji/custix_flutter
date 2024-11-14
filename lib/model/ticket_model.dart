@@ -27,7 +27,7 @@ class Ticket {
     required this.banner,
   });
 
-  // Mengonversi objek Ticket ke Map<String, dynamic>
+  // Mengonversi objek Ticket ke Map<String, dynamic> untuk keperluan serialisasi JSON
   Map<String, dynamic> toJson() {
     return {
       'uuid': uuid,
@@ -45,21 +45,25 @@ class Ticket {
     };
   }
 
-  // Anda juga bisa menambahkan konstruktor fromJson untuk membuat objek Ticket dari Map
+  // Konstruktor fromJson untuk membuat objek Ticket dari Map<String, dynamic>
   factory Ticket.fromJson(Map<String, dynamic> json) {
     return Ticket(
-      uuid: json['uuid'],
-      kodeTiket: json['kode_tiket'],
-      name: json['name'],
-      place: json['place'],
-      quantity: json['quantity'],
-      price: json['price'],
-      description: json['description'],
-      status: json['status'],
-      datetime: DateTime.parse(json['datetime']),
-      expiryDate: DateTime.parse(json['expiry_date']),
-      image: json['image'],
-      banner: json['banner'],
+      uuid: json['uuid'] ??
+          '', // Handling potential null values with default values
+      kodeTiket: json['kode_tiket'] ?? '',
+      name: json['name'] ?? '',
+      place: json['place'] ?? '',
+      quantity: json['quantity'] ?? 0,
+      price: (json['price'] is String)
+          ? double.parse(json['price'])
+          : json['price'] ?? 0.0,
+      description: json['description'] ?? '',
+      status: json['status'] ?? 'unknown', // Default status if null
+      datetime: DateTime.tryParse(json['datetime'] ?? '') ?? DateTime.now(),
+      expiryDate:
+          DateTime.tryParse(json['expiry_date'] ?? '') ?? DateTime.now(),
+      image: json['image'] ?? '',
+      banner: json['banner'] ?? '',
     );
   }
 }

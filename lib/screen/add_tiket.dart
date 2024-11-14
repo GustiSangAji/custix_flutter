@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:custix/api/api_service.dart';
 import 'package:custix/model/ticket_model.dart';
+import 'package:custix/api/auth.dart';
 import 'package:image_picker/image_picker.dart';
 
 class add_Tiket extends StatefulWidget {
   final String? selectedId;
-  add_Tiket({Key? key, this.selectedId}) : super(key: key);
+  const add_Tiket({Key? key, this.selectedId}) : super(key: key);
 
   @override
   _AddTiketPageState createState() => _AddTiketPageState();
@@ -48,13 +49,31 @@ class _AddTiketPageState extends State<add_Tiket> {
     }
   }
 
+  // Fungsi untuk mendapatkan token dari AuthRepository
+  Future<String?> _getToken() async {
+    AuthRepository authRepository = AuthRepository();
+    return await authRepository.getToken();
+  }
+
+  // Fungsi untuk mengambil data tiket berdasarkan UUID
   void _getTicketData() async {
     if (widget.selectedId != null) {
       try {
-        var ticketDataJson =
-            await apiService.fetchTicketById(widget.selectedId!);
+        String? token = await _getToken();
+        if (token == null) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Token tidak ditemukan')));
+          return;
+        }
+
+        var ticketDataJson = await apiService.fetchTicketByUuid(
+          uuid: widget.selectedId!,
+          token: token,
+        );
+
         Ticket ticketData =
             Ticket.fromJson(ticketDataJson as Map<String, dynamic>);
+
         setState(() {
           _kodeTiketController.text = ticketData.kodeTiket;
           _nameController.text = ticketData.name;
@@ -67,14 +86,24 @@ class _AddTiketPageState extends State<add_Tiket> {
           _expiryDate = ticketData.expiryDate;
           _imageFile = ticketData.image;
           _bannerFile = ticketData.banner;
+          if (_datetime != null) {
+            _datetimeController.text =
+                DateFormat('yyyy-MM-dd HH:mm').format(_datetime!);
+          }
+          if (_expiryDate != null) {
+            _expiryDateController.text =
+                DateFormat('yyyy-MM-dd').format(_expiryDate!);
+          }
         });
       } catch (e) {
+        debugPrint("Error loading ticket data: $e");
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Error loading ticket data')));
       }
     }
   }
 
+  // Fungsi submit data tiket
   void _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
       final ticketData = Ticket(
@@ -93,11 +122,17 @@ class _AddTiketPageState extends State<add_Tiket> {
       );
 
       try {
-        await apiService.saveTicket(ticketData.toJson(),
-            uuid: widget.selectedId);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Data berhasil disimpan')));
-        Navigator.pop(context, true);
+        String? token = await _getToken();
+        if (token != null) {
+          await apiService.saveTicketWithToken(ticketData.toJson(), token,
+              uuid: widget.selectedId);
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Data berhasil disimpan')));
+          Navigator.pop(context, true);
+        } else {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Token tidak ditemukan')));
+        }
       } catch (e) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Error saving ticket')));
@@ -105,47 +140,7 @@ class _AddTiketPageState extends State<add_Tiket> {
     }
   }
 
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller,
-      {bool isExpiry = false}) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-
-    if (picked != null && picked != _datetime) {
-      setState(() {
-        controller.text = DateFormat('yyyy-MM-dd').format(picked);
-        if (isExpiry) {
-          _expiryDate = picked;
-        } else {
-          _datetime = picked;
-        }
-      });
-    }
-  }
-
-  void _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-
-    if (picked != null) {
-      setState(() {
-        _datetime = DateTime(
-            _datetime?.year ?? DateTime.now().year,
-            _datetime?.month ?? DateTime.now().month,
-            _datetime?.day ?? DateTime.now().day,
-            picked.hour,
-            picked.minute);
-        _datetimeController.text = DateFormat('HH:mm').format(_datetime!);
-      });
-    }
-  }
-
+  // Pilih gambar
   Future<void> _pickImage(bool isBanner) async {
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery);
@@ -160,17 +155,18 @@ class _AddTiketPageState extends State<add_Tiket> {
     }
   }
 
-  @override
-  void dispose() {
-    _kodeTiketController.dispose();
-    _nameController.dispose();
-    _placeController.dispose();
-    _quantityController.dispose();
-    _priceController.dispose();
-    _descriptionController.dispose();
-    _datetimeController.dispose();
-    _expiryDateController.dispose();
-    super.dispose();
+  // Widget gambar dengan tampilan placeholder
+  Widget _buildImageContainer(String? filePath, bool isBanner) {
+    return GestureDetector(
+      onTap: () => _pickImage(isBanner),
+      child: Container(
+        height: 200,
+        color: Colors.grey[200],
+        child: filePath == null
+            ? Icon(Icons.add_a_photo)
+            : Image.file(File(filePath)),
+      ),
+    );
   }
 
   @override
@@ -272,35 +268,57 @@ class _AddTiketPageState extends State<add_Tiket> {
                   ),
                 ],
               ),
-              GestureDetector(
-                onTap: () => _pickImage(false),
-                child: Container(
-                  color: Colors.grey[200],
-                  padding: EdgeInsets.all(10),
-                  child: _imageFile == null
-                      ? Text('Pilih Gambar Tiket')
-                      : Image.file(File(_imageFile!)),
-                ),
-              ),
-              GestureDetector(
-                onTap: () => _pickImage(true),
-                child: Container(
-                  color: Colors.grey[200],
-                  padding: EdgeInsets.all(10),
-                  child: _bannerFile == null
-                      ? Text('Pilih Banner')
-                      : Image.file(File(_bannerFile!)),
-                ),
-              ),
-              SizedBox(height: 20),
+              _buildImageContainer(_imageFile, false),
+              _buildImageContainer(_bannerFile, true),
               ElevatedButton(
                 onPressed: _submit,
-                child: Text('Simpan Tiket'),
+                child: Text(widget.selectedId != null ? 'Simpan' : 'Tambah'),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  // Fungsi memilih tanggal
+  Future<void> _selectDate(
+      BuildContext context, TextEditingController controller,
+      {bool isExpiry = false}) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+    );
+    if (picked != null) {
+      setState(() {
+        if (isExpiry) {
+          _expiryDate = picked;
+        } else {
+          _datetime = picked;
+        }
+        controller.text = DateFormat('yyyy-MM-dd').format(picked);
+      });
+    }
+  }
+
+  // Fungsi memilih waktu
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    if (picked != null && _datetime != null) {
+      setState(() {
+        _datetime = DateTime(
+          _datetime!.year,
+          _datetime!.month,
+          _datetime!.day,
+          picked.hour,
+          picked.minute,
+        );
+        _datetimeController.text =
+            DateFormat('yyyy-MM-dd HH:mm').format(_datetime!);
+      });
+    }
   }
 }

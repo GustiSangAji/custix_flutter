@@ -5,6 +5,8 @@ import 'package:custix/screen/signin.dart' as signin_screen;
 import 'package:custix/screen/dashboard.dart';
 import 'package:custix/screen/add_tiket.dart';
 import 'package:custix/screen/ticket_list.dart'; // Pastikan file ini diimpor
+import 'package:google_fonts/google_fonts.dart';
+import 'screen/nav_bar_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +23,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/', // SplashScreen di awal aplikasi
       routes: {
         '/': (context) => loading_screen.SplashScreen(), // Splash Screen
-        '/home': (context) => HomeScreen(),
+        '/home': (context) =>
+            BottomNavBar(), // Navigasi ke BottomNavBar setelah splash screen
         '/signin': (context) => signin_screen.SignInScreen(), // Halaman login
         '/dashboard': (context) => Dashboard(), // Rute untuk Dashboard
         '/add_tiket': (context) => add_Tiket(),
@@ -29,17 +32,7 @@ class MyApp extends StatelessWidget {
             TicketList(), // Ganti dengan widget yang benar
       },
       theme: ThemeData(
-        colorScheme: const ColorScheme(
-          brightness: Brightness.light,
-          primary: Color.fromARGB(255, 2, 80, 191),
-          onPrimary: Color.fromARGB(255, 15, 16, 20),
-          secondary: Colors.grey,
-          onSecondary: Colors.white,
-          error: Colors.red,
-          onError: Colors.white,
-          surface: Color.fromARGB(255, 15, 16, 20),
-          onSurface: Colors.white,
-        ),
+        textTheme: GoogleFonts.mulishTextTheme(),
         useMaterial3: true,
       ),
     );
