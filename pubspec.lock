@@ -149,10 +149,10 @@ packages:
     dependency: transitive
     description:
       name: file_selector_linux
-      sha256: "712ce7fab537ba532c8febdb1a8f167b32441e74acd68c3ccb2e36dcb52c4ab2"
+      sha256: b2b91daf8a68ecfa4a01b778a6f52edef9b14ecd506e771488ea0f2e0784198b
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.3"
+    version: "0.9.3+1"
   file_selector_macos:
     dependency: transitive
     description:
@@ -177,6 +177,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.9.3+3"
+  fl_chart:
+    dependency: "direct main"
+    description:
+      name: fl_chart
+      sha256: "94307bef3a324a0d329d3ab77b2f0c6e5ed739185ffc029ed28c0f9b019ea7ef"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.69.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -761,10 +769,10 @@ packages:
     dependency: transitive
     description:
       name: web
-      sha256: cd3543bd5798f6ad290ea73d210f423502e71900302dde696f8bff84bf89a1cb
+      sha256: "97da13628db363c635202ad97068d47c5b8aa555808e7a9411963c533b449b27"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "0.5.1"
   win32:
     dependency: transitive
     description:

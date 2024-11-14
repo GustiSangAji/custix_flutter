@@ -1,5 +1,6 @@
 import 'package:custix/screen/Cart/cart_screen.dart';
 import 'package:custix/screen/Home/home_screen.dart';
+import 'package:custix/screen/dashboard.dart';
 import 'package:custix/screen/favorite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,11 +15,11 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
   int cuttentIndex = 2;
-    List screens = const [
-    Scaffold(),
-    Favorite(),
-    HomeScreen(),
-    CartScreen(),
+  List screens = [
+    Dashboard(),
+    const Favorite(),
+    const HomeScreen(),
+    const CartScreen(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -27,12 +28,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
         onPressed: () {
           setState(() {
             cuttentIndex = 2;
-          
           });
         },
         shape: const CircleBorder(),
         backgroundColor: kprimaryColor,
-         child: const Icon(
+        child: const Icon(
           CupertinoIcons.ticket, // Menggunakan ikon tiket dari CupertinoIcons
           color: Colors.white,
           size: 35,

@@ -16,8 +16,7 @@ class SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
-    _animateLogo();
+    _animateLogo();  // Cukup panggil animateLogo untuk memeriksa login dan animasi
   }
 
   // Fungsi untuk menambahkan animasi fade-in pada logo

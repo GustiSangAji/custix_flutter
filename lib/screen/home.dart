@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:custix/api/auth.dart';
 
-class HomeScreen extends StatelessWidget {
-  final AuthRepository _authRepository = AuthRepository();
+class HomeScreen extends StatefulWidget {
+  final AuthRepository _AuthRepository = AuthRepository();
 
   HomeScreen({super.key});
 
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   Future<void> _logout(BuildContext context) async {
-    await _authRepository.logout();
+    var _AuthRepository;
+    await _AuthRepository.logout();
     Navigator.pushReplacementNamed(context, '/signin');
   }
 
@@ -50,8 +56,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-     
     );
   }
 }
-

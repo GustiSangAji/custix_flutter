@@ -131,4 +131,28 @@ class AuthRepository {
       throw Exception('Registration failed: ${errorResponse['message']}');
     }
   }
+
+  Future<DashboardData> fetchDashboard() async {
+    final token = await getToken(); // Menggunakan metode getToken
+    if (token == null || token.isEmpty) {
+      throw Exception('Token is missing or expired.');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://192.168.2.101:8000/api/dashboard'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token', // Menambahkan token di header
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return DashboardData.fromJson(
+          data); // Parsing data ke dalam objek DashboardData
+    } else {
+      throw Exception('Failed to load dashboard: ${response.body}');
+    }
+  }
 }
