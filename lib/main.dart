@@ -1,10 +1,10 @@
-import 'package:custix/screen/home.dart';
 import 'package:flutter/material.dart';
+import 'package:custix/screen/home.dart';
 import 'package:custix/screen/loading.dart' as loading_screen;
 import 'package:custix/screen/signin.dart' as signin_screen;
 import 'package:custix/screen/dashboard.dart';
 import 'package:custix/screen/add_tiket.dart';
-import 'package:custix/screen/ticket_list.dart';
+import 'package:custix/screen/ticket_list.dart'; // Pastikan file ini diimpor
 
 void main() {
   runApp(const MyApp());
@@ -24,8 +24,9 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomeScreen(),
         '/signin': (context) => signin_screen.SignInScreen(), // Halaman login
         '/dashboard': (context) => Dashboard(), // Rute untuk Dashboard
-        '/add_tiket': (context) => add_tiket(),
-        '/ticket_list': (context) => ticket_list()
+        '/add_tiket': (context) => add_Tiket(),
+        '/ticket_list': (context) =>
+            TicketList(), // Ganti dengan widget yang benar
       },
       theme: ThemeData(
         colorScheme: const ColorScheme(
@@ -87,8 +88,8 @@ class _MyHomePageState extends State<MyHomePage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(
-                    context, '/dashboard'); // Navigasi ke Dashboard
+                // Navigasi ke Dashboard
+                Navigator.pushNamed(context, '/dashboard');
               },
               child: const Text('Go to Dashboard'),
             ),

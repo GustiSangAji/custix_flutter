@@ -31,6 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
               showSearch(context: context, delegate: TicketSearchDelegate());
             },
           ),
+          IconButton(
+            icon: Icon(Icons.dashboard),
+            onPressed: () {
+              Navigator.pushNamed(context, '/dashboard');
+            },
+            tooltip: 'Dashboard',
+          ),
         ],
       ),
       body: Padding(

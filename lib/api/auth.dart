@@ -4,6 +4,21 @@ import 'package:custix/model/DashboardData.dart'; // Pastikan Anda memiliki mode
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Model untuk menangani response login
+class AuthResponse {
+  final String token;
+  final bool status;
+
+  AuthResponse({required this.token, required this.status});
+
+  factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    return AuthResponse(
+      token: json['token'],
+      status: json['status'],
+    );
+  }
+}
+
 class AuthRepository {
   // Fungsi untuk mendapatkan token
   Future<String?> getToken() async {
@@ -11,6 +26,7 @@ class AuthRepository {
     return prefs.getString('token'); // Mengambil token dari SharedPreferences
   }
 
+  // Fungsi login
   Future<bool> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('http://192.168.2.101:8000/api/auth/login'),
@@ -29,27 +45,30 @@ class AuthRepository {
       final authResponse = AuthResponse.fromJson(json);
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', authResponse.token);
-      await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('token', authResponse.token); // Menyimpan token
+      await prefs.setBool('isLoggedIn', true); // Menyimpan status login
 
-      return authResponse.status;
+      return authResponse.status; // Mengembalikan status login
     } else {
       final errorResponse = jsonDecode(response.body);
       throw Exception('Login failed: ${errorResponse['message']}');
     }
   }
 
+  // Fungsi logout
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token'); // hapus token
-    await prefs.setBool('isLoggedIn', false); // ubah status login
+    await prefs.remove('token'); // Menghapus token
+    await prefs.setBool('isLoggedIn', false); // Mengubah status login
   }
 
+  // Fungsi untuk mengecek status login
   Future<bool> checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isLoggedIn') ?? false;
+    return prefs.getBool('isLoggedIn') ?? false; // Mengembalikan status login
   }
 
+  // Fungsi untuk mengambil data dashboard
   Future<DashboardData> fetchDashboard() async {
     final token = await getToken(); // Menggunakan metode getToken
     if (token == null || token.isEmpty) {
@@ -57,11 +76,11 @@ class AuthRepository {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.2.100:8000/api/dashboard'),
+      Uri.parse('http://192.168.2.101:8000/api/dashboard'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
+        'Authorization': 'Bearer $token', // Menambahkan token di header
       },
     );
 

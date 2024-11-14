@@ -64,7 +64,7 @@ class _DashboardState extends State<Dashboard>
           ),
         ],
       ),
-      drawer: const DrawerMenu(),
+      drawer: DrawerMenu(),
       body: FutureBuilder<DashboardData>(
         future: dashboardData,
         builder: (context, snapshot) {
