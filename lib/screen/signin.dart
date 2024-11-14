@@ -51,112 +51,169 @@ class SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = colorScheme.onSurface;
+
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 15, 16, 20),
-      appBar: AppBar(
-        title: Text(""),
-        backgroundColor: const Color.fromARGB(255, 15, 16, 20),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 25.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(height: 40),
-              Image.asset(
+      body: Stack(
+        children: [
+          // Background Image
+          Padding(
+            padding: EdgeInsets.only(bottom: 300),
+            child: Container(
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                image: DecorationImage(
+                  image: AssetImage('assets/images/backgroundkonser1.jpg'),
+                  fit: BoxFit.cover,
+                  opacity: 0.9, // Menyesuaikan transparansi gambar
+                ),
+              ),
+            ),
+          ),
+
+          // Logo di atas
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding:
+                  const EdgeInsets.only(top: 50.0), // Jarak dari atas layar
+              child: Image.asset(
                 'assets/images/custiket.png',
-                height: 200,
+                height: 100,
               ),
-              SizedBox(height: 30),
-              if (_errorMessage != null)
-                Text(
-                  _errorMessage!,
-                  style: TextStyle(color: Colors.red),
-                ),
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                        color: const Color.fromARGB(255, 21, 23, 28)),
-                  ),
-                  prefixIcon: Icon(Icons.email),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Email tidak boleh kosong';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide:
-                        BorderSide(color: Color.fromARGB(255, 21, 23, 28)),
-                  ),
-                  prefixIcon: Icon(Icons.lock),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Password tidak boleh kosong';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 30),
-              _isLoading
-                  ? CircularProgressIndicator()
-                  : SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            _login();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          backgroundColor:
-                              const Color.fromARGB(255, 0, 106, 230),
-                          foregroundColor:
-                              const Color.fromARGB(255, 255, 255, 255),
-                        ),
-                        child: Text(
-                          "Login",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
+            ),
+          ),
+
+          // Form Login
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Center(
+                child: Container(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 65.0, horizontal: 20.0),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(45),
+                      topLeft: Radius.circular(45),
                     ),
-              SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/signup');
-                },
-                child: Text(
-                  "Belum punya akun? Daftar di sini",
-                  style: TextStyle(color: Color.fromARGB(255, 0, 106, 230)),
+                  ),
+                  width: double.infinity,
+                  constraints: BoxConstraints(maxWidth: 400),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (_errorMessage != null)
+                          Text(
+                            _errorMessage!,
+                            style: TextStyle(color: Colors.red, fontSize: 16),
+                          ),
+
+                        // Email TextField
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: "Email",
+                            labelStyle: TextStyle(color: textColor),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide:
+                                  BorderSide(color: textColor, width: 1.5),
+                            ),
+                            filled: true,
+                            fillColor: colorScheme.surface,
+                            prefixIcon: Icon(Icons.email, color: textColor),
+                          ),
+                          style: TextStyle(color: textColor),
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Email tidak boleh kosong';
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 20),
+
+                        // Password TextField
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            labelText: "Password",
+                            labelStyle: TextStyle(color: textColor),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide:
+                                  BorderSide(color: textColor, width: 1.5),
+                            ),
+                            filled: true,
+                            fillColor: colorScheme.surface,
+                            prefixIcon: Icon(Icons.lock, color: textColor),
+                          ),
+                          style: TextStyle(color: textColor),
+                          obscureText: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Password tidak boleh kosong';
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 30),
+
+                        // Login Button
+                        _isLoading
+                            ? CircularProgressIndicator()
+                            : SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    if (_formKey.currentState?.validate() ??
+                                        false) {
+                                      _login();
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                    ),
+                                    backgroundColor: colorScheme.primary,
+                                    foregroundColor: colorScheme.onPrimary,
+                                  ),
+                                  child: Text(
+                                    "Login",
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ),
+                              ),
+                        SizedBox(height: 50),
+
+                        // Sign Up Redirect
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/signup');
+                          },
+                          child: Text(
+                            "Belum punya akun? Daftar di sini",
+                            style: TextStyle(
+                                color: colorScheme.primary, fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              SizedBox(height: 50),
+              SizedBox(height: 0), // Jarak ke bagian bawah layar
             ],
           ),
-        ),
+        ],
       ),
     );
   }
@@ -168,3 +225,4 @@ class SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 }
+  
