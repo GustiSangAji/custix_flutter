@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../constants.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomAppBar extends StatelessWidget {
   const CustomAppBar({
@@ -9,28 +8,41 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
+    return AppBar(
+      backgroundColor: Colors.white, // Menggunakan background color sesuai temas
+      title: Image.asset(
+        "assets/images/custiket.png", // Ganti dengan logo Anda
+        height: 100, // Sesuaikan tinggi logo
+        width: 100, // Sesuaikan lebar logo
+      ),
+      actions: <Widget>[
+        // Tombol pencarian
         IconButton(
-          style: IconButton.styleFrom(
-            backgroundColor: kcontentColor,
-            padding: const EdgeInsets.all(20),
-          ),
-          onPressed: () {},
-          icon: Image.asset(
-            "assets/images/icon.png",
-            height: 20,
+          onPressed: () {
+            // Aksi saat ikon pencarian ditekan
+          },
+          icon: SvgPicture.asset(
+            "assets/images/icon/search.svg",
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              Theme.of(context).iconTheme.color!,
+              BlendMode.srcIn,
+            ),
           ),
         ),
+        // Tombol notifikasi
         IconButton(
-          style: IconButton.styleFrom(
-            backgroundColor: kcontentColor,
-            padding: const EdgeInsets.all(20),
+          onPressed: () {
+            // Aksi saat ikon notifikasi ditekan
+          },
+          icon: SvgPicture.asset(
+            "assets/images/icon/cart.svg", // Ganti dengan ikon notifikasi yang sesuai
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              Theme.of(context).iconTheme.color!,
+              BlendMode.srcIn,
+            ),
           ),
-          onPressed: () {},
-          iconSize: 30,
-          icon:const Icon(Icons.notifications_outlined),
         ),
       ],
     );
