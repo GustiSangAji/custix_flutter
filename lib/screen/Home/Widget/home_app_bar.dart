@@ -22,7 +22,7 @@ class CustomAppBar extends StatelessWidget {
             // Aksi saat ikon pencarian ditekan
           },
           icon: SvgPicture.asset(
-            "assets/images/icon/search.svg",
+            "assets/images/icon/Search-01.svg",
             height: 24,
             colorFilter: ColorFilter.mode(
               Theme.of(context).iconTheme.color!,
@@ -36,7 +36,7 @@ class CustomAppBar extends StatelessWidget {
             // Aksi saat ikon notifikasi ditekan
           },
           icon: SvgPicture.asset(
-            "assets/images/icon/cart.svg", // Ganti dengan ikon notifikasi yang sesuai
+            "assets/images/icon/Notification.svg", // Ganti dengan ikon notifikasi yang sesuai
             height: 24,
             colorFilter: ColorFilter.mode(
               Theme.of(context).iconTheme.color!,

@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   // Custom AppBar
                   CustomAppBar(),
-
+                  SizedBox(height: 20),
                   // Image Slider
                   ImageSlider(
                     currentSlide: currentSlider,

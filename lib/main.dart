@@ -24,6 +24,8 @@ class MyApp extends StatelessWidget {
       },
       theme: ThemeData(
         textTheme: GoogleFonts.mulishTextTheme(),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        scaffoldBackgroundColor: Colors.white,
         useMaterial3: true,
       ),
     );
