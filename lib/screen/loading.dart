@@ -16,7 +16,7 @@ class SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _animateLogo();  // Cukup panggil animateLogo untuk memeriksa login dan animasi
+    _animateLogo(); // Cukup panggil animateLogo untuk memeriksa login dan animasi
   }
 
   // Fungsi untuk menambahkan animasi fade-in pada logo
@@ -26,22 +26,24 @@ class SplashScreenState extends State<SplashScreen> {
       _isVisible = true;
     });
 
-    // Menunggu beberapa detik untuk animasi selesai, kemudian arahkan ke halaman login
+    // Menunggu beberapa detik untuk animasi selesai
     await Future.delayed(Duration(milliseconds: 4500));
 
     bool isLoggedIn = await _authRepository.checkLoginStatus();
 
-    if (isLoggedIn) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      Navigator.pushReplacementNamed(context, '/signin');
+    if (mounted) {
+      if (isLoggedIn) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        Navigator.pushReplacementNamed(context, '/signin');
+      }
     }
   }
 
   Future<void> _checkLoginStatus() async {
     bool isLoggedIn = await _authRepository.checkLoginStatus();
 
-    if (isLoggedIn) {
+    if (mounted && isLoggedIn) {
       Navigator.pushReplacementNamed(context, '/home');
     }
   }

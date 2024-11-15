@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:custix/screen/home.dart';
 import 'package:custix/screen/loading.dart' as loading_screen;
 import 'package:custix/screen/signin.dart' as signin_screen;
+import 'package:custix/screen/signup.dart' as signup_screen;
 import 'package:custix/screen/dashboard.dart';
 import 'package:custix/screen/add_tiket.dart';
 import 'package:custix/screen/ticket_list.dart'; // Pastikan file ini diimpor
@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) =>
             BottomNavBar(), // Navigasi ke BottomNavBar setelah splash screen
         '/signin': (context) => signin_screen.SignInScreen(), // Halaman login
+        '/signup': (context) => signup_screen.RegisterScreen(), // Halaman login
         '/dashboard': (context) => Dashboard(), // Rute untuk Dashboard
         '/add_tiket': (context) => add_Tiket(),
         '/ticket_list': (context) =>
