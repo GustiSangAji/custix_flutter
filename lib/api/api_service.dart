@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart'; // Pastikan Flutter diimpor agar debugPrint tersedia
-import 'package:custix/model/ticket_model.dart'; // Pastikan model ticket_model.dart sudah sesuai
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
@@ -51,26 +50,26 @@ class ApiService {
     required String uuid,
     required String token,
   }) async {
-    token ??= (await getToken())!;
+    // Jika token kosong, ambil token dari fungsi getToken()
+    token = token.isNotEmpty ? token : (await getToken())!;
+
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/tiket/$uuid'),
-        headers: {'Authorization': 'Bearer $token'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
 
-      debugPrint('Fetching ticket data with UUID: $uuid');
-      debugPrint('Status Response: ${response.statusCode}');
-      debugPrint('Body Response: ${response.body}');
-
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
-        debugPrint('Error fetching ticket data');
-        throw Exception('Failed to load ticket data');
+        throw Exception('Failed to fetch ticket: ${response.body}');
       }
     } catch (e) {
-      debugPrint('Exception occurred: $e');
-      throw Exception('Failed to load ticket data: $e');
+      throw Exception('Error occurred while fetching ticket: $e');
     }
   }
 

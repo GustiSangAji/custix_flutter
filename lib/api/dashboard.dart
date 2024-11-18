@@ -6,7 +6,7 @@ class DashboardRepository {
   // Fungsi untuk mengambil data dashboard
   Future<DashboardData> fetchDashboardData(String token) async {
     final response = await http.get(
-      Uri.parse('http://192.168.2.101:8000/api/dashboard'),
+      Uri.parse('http://192.168.2.153:8000/api/dashboard'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

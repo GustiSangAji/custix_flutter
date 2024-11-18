@@ -25,9 +25,9 @@ class Product {
       required this.quantity});
 }
 
-final List<Product> products= [
+final List<Product> products = [
   Product(
-    title: "Indonesia Blackchain Week 2024",
+    title: "Blackchain Week",
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec massa sapien faucibus et molestie ac feugiat. In massa tempor nec feugiat nisl. Libero id faucibus nisl tincidunt.",
     image: "assets/images/pasuruan.jpg",
@@ -94,7 +94,7 @@ final List<Product> products= [
     rate: 5.0,
     quantity: 1,
   ),
-   Product(
+  Product(
     title: "Indonesia Blackchain Week 2024",
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec massa sapien faucibus et molestie ac feugiat. In massa tempor nec feugiat nisl. Libero id faucibus nisl tincidunt.",
@@ -111,7 +111,7 @@ final List<Product> products= [
     rate: 5.0,
     quantity: 1,
   ),
-   Product(
+  Product(
     title: "Indonesia Blackchain Week 2024",
     description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Donec massa sapien faucibus et molestie ac feugiat. In massa tempor nec feugiat nisl. Libero id faucibus nisl tincidunt.",
@@ -163,4 +163,3 @@ final List<Product> products= [
     quantity: 1,
   ),
 ];
-

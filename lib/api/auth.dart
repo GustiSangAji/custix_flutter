@@ -1,12 +1,33 @@
-import 'dart:convert';
+import 'dart:convert'; // Gantilah dengan model yang sesuai
+import 'package:custix/model/DashboardData.dart'; // Pastikan Anda memiliki model DashboardData
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AuthRepository {
-  final String baseUrl =
-      'http://192.168.2.153:8000/api/auth'; // Sesuaikan alamat URL backend Anda
+// Model untuk menangani response login
+class AuthResponse {
+  final String token;
+  final bool status;
 
-  // Fungsi untuk login
+  AuthResponse({required this.token, required this.status});
+
+  factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    return AuthResponse(
+      token: json['token'],
+      status: json['status'],
+    );
+  }
+}
+
+class AuthRepository {
+  final String baseUrl = 'http://192.168.2.153:8000/api/auth';
+
+  // Fungsi untuk mendapatkan token
+  Future<String?> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token'); // Mengambil token dari SharedPreferences
+  }
+
+  // Fungsi login
   Future<bool> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
@@ -22,33 +43,20 @@ class AuthRepository {
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
-      final token = json['token'];
+      final authResponse = AuthResponse.fromJson(json);
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', token);
-      await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('token', authResponse.token); // Menyimpan token
+      await prefs.setBool('isLoggedIn', true); // Menyimpan status login
 
-      return true;
+      return authResponse.status; // Mengembalikan status login
     } else {
       final errorResponse = jsonDecode(response.body);
       throw Exception('Login failed: ${errorResponse['message']}');
     }
   }
 
-  // Fungsi untuk logout
-  Future<void> logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    await prefs.setBool('isLoggedIn', false);
-  }
-
-  // Fungsi untuk mengecek status login
-  Future<bool> checkLoginStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isLoggedIn') ?? false;
-  }
-
-  // Fungsi untuk mengirim OTP ke email saat registrasi
+  // Fungsi untuk mengirim OTP
   Future<bool> sendOtp(String email, String name) async {
     final response = await http.post(
       Uri.parse('$baseUrl/register/get/email/otp'),
@@ -132,27 +140,40 @@ class AuthRepository {
     }
   }
 
+  // Fungsi untuk mengambil data dashboard
   Future<DashboardData> fetchDashboard() async {
-    final token = await getToken(); // Menggunakan metode getToken
+    final token = await getToken();
     if (token == null || token.isEmpty) {
       throw Exception('Token is missing or expired.');
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.2.101:8000/api/dashboard'),
+      Uri.parse('$baseUrl/dashboard'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer $token', // Menambahkan token di header
+        'Authorization': 'Bearer $token',
       },
     );
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return DashboardData.fromJson(
-          data); // Parsing data ke dalam objek DashboardData
+      return DashboardData.fromJson(data);
     } else {
       throw Exception('Failed to load dashboard: ${response.body}');
     }
+  }
+
+  // Fungsi logout
+  Future<void> logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token'); // Menghapus token
+    await prefs.setBool('isLoggedIn', false); // Mengubah status login
+  }
+
+  // Fungsi untuk mengecek status login
+  Future<bool> checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isLoggedIn') ?? false; // Mengembalikan status login
   }
 }
