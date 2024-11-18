@@ -1,14 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:custix/api/api_service.dart';
 import 'package:custix/model/ticket_model.dart';
-import 'package:custix/api/auth.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:custix/api/auth.dart';
+import 'package:intl/intl.dart';
 
-// Widget untuk menambah tiket
 class add_Tiket extends StatefulWidget {
   final String? selectedId;
+
   const add_Tiket({Key? key, this.selectedId}) : super(key: key);
 
   @override
@@ -17,420 +17,324 @@ class add_Tiket extends StatefulWidget {
 
 class _AddTiketPageState extends State<add_Tiket> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _kodeTiketController;
-  late TextEditingController _nameController;
-  late TextEditingController _placeController;
-  late TextEditingController _quantityController;
-  late TextEditingController _priceController;
-  late TextEditingController _descriptionController;
-  late TextEditingController _datetimeController;
-  late TextEditingController _expiryDateController;
-  String _status = 'available'; // Default value
+  final TextEditingController _kodeTiketController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _placeController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  File? _imageFile;
+  File? _bannerFile;
+  String? _imageUrl;
+  String? _bannerUrl;
   DateTime? _datetime;
   DateTime? _expiryDate;
-  String? _imageFile;
-  String? _bannerFile;
-  final ImagePicker _picker = ImagePicker();
-  final ApiService apiService = ApiService();
+  String? _statusTiket = 'Tersedia';
 
   @override
   void initState() {
     super.initState();
-    _kodeTiketController = TextEditingController();
-    _nameController = TextEditingController();
-    _placeController = TextEditingController();
-    _quantityController = TextEditingController();
-    _priceController = TextEditingController();
-    _descriptionController = TextEditingController();
-    _datetimeController = TextEditingController();
-    _expiryDateController = TextEditingController();
-
     if (widget.selectedId != null) {
-      _getTicketData();
+      _fetchTicketData(widget.selectedId!);
     }
   }
 
-  // Fungsi untuk mendapatkan token dari AuthRepository
   Future<String?> _getToken() async {
     AuthRepository authRepository = AuthRepository();
     return await authRepository.getToken();
   }
 
-  // Fungsi untuk mengambil data tiket berdasarkan UUID
-  void _getTicketData() async {
-    if (widget.selectedId != null) {
-      try {
-        String? token = await _getToken();
-        if (token == null) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Token tidak ditemukan')));
-          return;
-        }
+  Future<void> _fetchTicketData(String uuid) async {
+    try {
+      final response = await ApiService()
+          .fetchTicketByUuid(uuid: uuid, token: await _getToken() ?? '');
+      final ticket = response['tiket'];
 
-        print("Fetching ticket data for UUID: ${widget.selectedId}"); // Log
-
-        var ticketDataJson = await apiService.fetchTicketByUuid(
-          uuid: widget.selectedId!,
-          token: token,
-        );
-
-        if (ticketDataJson == null) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Tiket tidak ditemukan')));
-          return;
-        }
-
-        Ticket ticketData =
-            Ticket.fromJson(ticketDataJson as Map<String, dynamic>);
-
-        setState(() {
-          print("Ticket data fetched: ${ticketData.toJson()}"); // Log
-          _kodeTiketController.text = ticketData.kodeTiket;
-          _nameController.text = ticketData.name;
-          _placeController.text = ticketData.place;
-          _quantityController.text = ticketData.quantity.toString();
-          _priceController.text = ticketData.price.toString();
-          _descriptionController.text = ticketData.description;
-
-          // Assign the status from ticket data.
-          _status = ticketData.status ??
-              'available'; // Default to 'available' if status is null
-
-          _datetime = ticketData.datetime;
-          _expiryDate = ticketData.expiryDate;
-          _imageFile = ticketData.image; // Path relative to image
-          _bannerFile = ticketData.banner; // Path relative to banner
-
-          if (_datetime != null) {
-            _datetimeController.text =
-                DateFormat('yyyy-MM-dd HH:mm').format(_datetime!);
-          }
-          if (_expiryDate != null) {
-            _expiryDateController.text =
-                DateFormat('yyyy-MM-dd').format(_expiryDate!);
-          }
-        });
-      } catch (e) {
-        debugPrint("Error loading ticket data: $e");
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error loading ticket data')));
-      }
-    }
-  }
-
-  // Fungsi submit data tiket
-  void _submit() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final ticketData = Ticket(
-        uuid: widget.selectedId ?? '',
-        kodeTiket: _kodeTiketController.text,
-        name: _nameController.text,
-        place: _placeController.text,
-        quantity: int.parse(_quantityController.text),
-        price: double.parse(_priceController.text),
-        description: _descriptionController.text,
-        status: _status,
-        datetime: _datetime!,
-        expiryDate: _expiryDate!,
-        image: _imageFile ?? '',
-        banner: _bannerFile ?? '',
+      setState(() {
+        _kodeTiketController.text = ticket['kode_tiket'] ?? '';
+        _nameController.text = ticket['name'] ?? '';
+        _placeController.text = ticket['place'] ?? '';
+        _quantityController.text = ticket['quantity']?.toString() ?? '0';
+        _priceController.text = ticket['price']?.toString() ?? '0.0';
+        _descriptionController.text = ticket['description'] ?? '';
+        _datetime = ticket['datetime'] != null
+            ? DateTime.parse(ticket['datetime'])
+            : null;
+        _expiryDate = ticket['expiry_date'] != null
+            ? DateTime.parse(ticket['expiry_date'])
+            : null;
+        _statusTiket =
+            ticket['status'] == 'available' ? 'Tersedia' : 'Tidak Tersedia';
+        _imageUrl = ticket['image'] != null
+            ? 'http://192.168.2.101:8000/storage/${ticket['image']}'
+            : null;
+        _bannerUrl = ticket['banner'] != null
+            ? 'http://192.168.2.101:8000/storage/${ticket['banner']}'
+            : null;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memuat data tiket: $e')),
       );
-
-      try {
-        String? token = await _getToken();
-        if (token != null) {
-          print("Saving ticket data: ${ticketData.toJson()}"); // Log
-          await apiService.saveTicketWithToken(ticketData.toJson(), token,
-              uuid: widget.selectedId);
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Data berhasil disimpan')));
-          Navigator.pop(context, true);
-        } else {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Token tidak ditemukan')));
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error saving ticket')));
-      }
     }
   }
 
-  // Pilih gambar
   Future<void> _pickImage(bool isBanner) async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         if (isBanner) {
-          _bannerFile = pickedFile.path;
+          _bannerFile = File(pickedFile.path);
+          _bannerUrl = null;
         } else {
-          _imageFile = pickedFile.path;
+          _imageFile = File(pickedFile.path);
+          _imageUrl = null;
         }
       });
     }
   }
 
-  // Fungsi untuk memilih tanggal
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller,
-      {bool isExpiry = false}) async {
-    DateTime initialDate = DateTime.now();
-    if (controller.text.isNotEmpty) {
-      initialDate = DateFormat('yyyy-MM-dd').parse(controller.text);
-    }
-
-    final DateTime? pickedDate = await showDatePicker(
+  Future<void> _pickDate({bool isExpiryDate = false}) async {
+    final pickedDate = await showDatePicker(
       context: context,
-      initialDate: initialDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
     );
 
-    if (pickedDate != null && pickedDate != initialDate) {
+    if (pickedDate != null) {
       setState(() {
-        if (isExpiry) {
-          // Jika ini untuk tanggal kadaluarsa
+        if (isExpiryDate) {
           _expiryDate = pickedDate;
-          controller.text = DateFormat('yyyy-MM-dd').format(_expiryDate!);
         } else {
-          // Jika ini untuk tanggal dan waktu
           _datetime = pickedDate;
-          controller.text = DateFormat('yyyy-MM-dd').format(_datetime!);
         }
       });
     }
   }
 
-  // Fungsi untuk memilih waktu
-  Future<void> _selectTime(BuildContext context) async {
-    TimeOfDay initialTime = TimeOfDay.now();
-    if (_datetimeController.text.isNotEmpty) {
-      final parts = _datetimeController.text.split(' ');
-      final timeParts = parts[1].split(':');
-      initialTime = TimeOfDay(
-          hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
-    }
-
-    final TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: initialTime,
+  Widget _buildImageContainer(String? url, File? file, bool isBanner) {
+    return Container(
+      height: 150,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: url != null
+          ? Image.network(url, fit: BoxFit.cover) // Tampilkan gambar dari URL
+          : file != null
+              ? Image.file(file, fit: BoxFit.cover) // Tampilkan file lokal
+              : Center(
+                  child: Text(
+                    isBanner ? 'Pilih Banner' : 'Pilih Gambar',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
     );
-
-    if (pickedTime != null && pickedTime != initialTime) {
-      setState(() {
-        _datetime = DateTime(
-          _datetime?.year ?? DateTime.now().year,
-          _datetime?.month ?? DateTime.now().month,
-          _datetime?.day ?? DateTime.now().day,
-          pickedTime.hour,
-          pickedTime.minute,
-        );
-        _datetimeController.text = pickedTime.format(context);
-      });
-    }
   }
 
-  final String baseUrl = 'http://192.168.2.101:8000';
-  Widget _buildImageContainer(String? filePath, bool isBanner) {
-    String? imageUrl = filePath != null
-        ? Uri.parse('$baseUrl/${filePath.replaceFirst(RegExp(r'^/'), '')}')
-            .toString()
-        : null;
+  void _submit() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
-    return GestureDetector(
-      onTap: () {
-        // Logic untuk memilih gambar dapat ditambahkan di sini
-      },
-      child: Container(
-        height: 200,
-        color: Colors.grey[200],
-        child: imageUrl == null
-            ? Icon(Icons.add_a_photo,
-                size: 50,
-                color: Colors.grey) // Placeholder icon jika gambar kosong
-            : Image.network(
-                imageUrl, // Menggunakan URL untuk gambar
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Icon(
-                    Icons.error), // Menampilkan error jika gambar gagal dimuat
-              ),
-      ),
+    if (_imageFile == null && _imageUrl == null ||
+        _bannerFile == null && _bannerUrl == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gambar dan banner wajib dipilih')),
+      );
+      return;
+    }
+
+    final ticketData = Ticket(
+      uuid: widget.selectedId ?? '',
+      kodeTiket: _kodeTiketController.text,
+      name: _nameController.text,
+      place: _placeController.text,
+      quantity: int.tryParse(_quantityController.text) ?? 0,
+      price: double.tryParse(_priceController.text) ?? 0.0,
+      description: _descriptionController.text,
+      status: _statusTiket == 'Tersedia' ? 'available' : 'unavailable',
+      datetime: _datetime ?? DateTime.now(),
+      expiryDate: _expiryDate ?? DateTime.now(),
+      image: _imageFile?.path ?? '',
+      banner: _bannerFile?.path ?? '',
     );
+
+    try {
+      if (widget.selectedId == null) {
+        await ApiService().createTicket(ticketData.toJson());
+      } else {
+        final token = await _getToken();
+        await ApiService().updateTicket(widget.selectedId!, ticketData.toJson(),
+            token: token);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tiket berhasil disimpan')),
+      );
+      Navigator.of(context).pop();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menyimpan tiket: ${e.toString()}')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    var _statusTiket;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.selectedId != null ? 'Edit Tiket' : 'Tambah Tiket'),
+        title: Text(widget.selectedId == null ? 'Tambah Tiket' : 'Edit Tiket'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: <Widget>[
-              TextFormField(
-                controller: _kodeTiketController,
-                decoration: InputDecoration(labelText: 'Kode Tiket'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Kode Tiket wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Nama Tiket'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nama Tiket wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _placeController,
-                decoration: InputDecoration(labelText: 'Tempat'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Tempat wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _quantityController,
-                decoration: InputDecoration(labelText: 'Jumlah'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Jumlah wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _priceController,
-                decoration: InputDecoration(labelText: 'Harga'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Harga wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Deskripsi'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Deskripsi wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => _selectDate(context, _datetimeController),
-                      child: AbsorbPointer(
-                        child: TextFormField(
-                          controller: _datetimeController,
-                          decoration:
-                              InputDecoration(labelText: 'Tanggal & Waktu'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Tanggal & Waktu wajib diisi';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.calendar_today),
-                    onPressed: () => _selectTime(context),
-                  ),
-                ],
-              ),
-              // New status field for Available / Not Available
-              DropdownButtonFormField<String>(
-                value: _statusTiket, // Menggunakan variabel yang dideklarasikan
-                decoration: InputDecoration(labelText: 'Status Tiket'),
-                items: ['Tersedia', 'Tidak Tersedia'].map((status) {
-                  return DropdownMenuItem(
-                    value: status,
-                    child: Text(status),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _statusTiket =
-                        value; // Menyimpan nilai yang dipilih ke variabel
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Status wajib diisi';
-                  }
-                  return null;
-                },
-              ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: EdgeInsets.all(16),
+          children: [
+            // Input Kode Tiket
+            TextFormField(
+              controller: _kodeTiketController,
+              decoration: InputDecoration(labelText: 'Kode Tiket'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Kode Tiket wajib diisi';
+                }
+                return null;
+              },
+            ),
 
-              // Expiry date field (date picker for expiration)
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => _selectDate(context, _expiryDateController),
-                      child: AbsorbPointer(
-                        child: TextFormField(
-                          controller: _expiryDateController,
-                          decoration:
-                              InputDecoration(labelText: 'Tanggal Kadaluarsa'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Tanggal Kadaluarsa wajib diisi';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
+            // Input Nama Tiket
+            TextFormField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: 'Nama Tiket'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Nama Tiket wajib diisi';
+                }
+                return null;
+              },
+            ),
+
+            // Input Tempat
+            TextFormField(
+              controller: _placeController,
+              decoration: InputDecoration(labelText: 'Tempat'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Tempat wajib diisi';
+                }
+                return null;
+              },
+            ),
+
+            // Input Deskripsi
+            TextFormField(
+              controller: _descriptionController,
+              decoration: InputDecoration(labelText: 'Deskripsi Tiket'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Deskripsi wajib diisi';
+                }
+                return null;
+              },
+            ),
+
+            // Input Jumlah
+            TextFormField(
+              controller: _quantityController,
+              decoration: InputDecoration(labelText: 'Jumlah'),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Jumlah wajib diisi';
+                }
+                return null;
+              },
+            ),
+
+            // Input Harga
+            TextFormField(
+              controller: _priceController,
+              decoration: InputDecoration(labelText: 'Harga'),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Harga wajib diisi';
+                }
+                return null;
+              },
+            ),
+
+            // Dropdown Status Tiket
+            DropdownButtonFormField<String>(
+              value: _statusTiket,
+              decoration: InputDecoration(labelText: 'Status Tiket'),
+              items: ['Tersedia', 'Tidak Tersedia'].map((status) {
+                return DropdownMenuItem(
+                  value: status,
+                  child: Text(status),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _statusTiket = value;
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Status wajib diisi';
+                }
+                return null;
+              },
+            ),
+
+            // Pilih Tanggal Event
+            ListTile(
+              title: Text('Tanggal dan Waktu Event'),
+              subtitle: Text(_datetime == null
+                  ? 'Pilih tanggal'
+                  : '${_datetime!.toLocal()}'.split(' ')[0]),
+              onTap: () => _pickDate(),
+            ),
+
+            // Pilih Tanggal Kadaluarsa
+            ListTile(
+              title: Text('Tanggal Kadaluarsa'),
+              subtitle: Text(_expiryDate == null
+                  ? 'Pilih tanggal'
+                  : '${_expiryDate!.toLocal()}'.split(' ')[0]),
+              onTap: () => _pickDate(isExpiryDate: true),
+            ),
+
+            // Gambar Tiket dan Banner
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _pickImage(false),
+                    child: _buildImageContainer(_imageUrl, _imageFile, false),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.calendar_today),
-                    onPressed: () =>
-                        _selectDate(context, _expiryDateController),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _pickImage(true),
+                    child: _buildImageContainer(_bannerUrl, _bannerFile, true),
                   ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Text(
-                "Gambar Tiket",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              _buildImageContainer(_imageFile, false), // Tiket Image
-              SizedBox(height: 10),
-              Text(
-                "Banner Tiket",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              _buildImageContainer(_bannerFile, true), // Banner Image
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submit,
-                child: Text(widget.selectedId != null ? 'Simpan' : 'Tambah'),
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+
+            // Tombol Simpan
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _submit,
+              child: Text(widget.selectedId == null
+                  ? 'Tambah Tiket'
+                  : 'Perbarui Tiket'),
+            ),
+          ],
         ),
       ),
     );

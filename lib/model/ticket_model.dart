@@ -48,17 +48,18 @@ class Ticket {
   // Konstruktor fromJson untuk membuat objek Ticket dari Map<String, dynamic>
   factory Ticket.fromJson(Map<String, dynamic> json) {
     return Ticket(
-      uuid: json['uuid'] ??
-          '', // Handling potential null values with default values
+      uuid: json['uuid'] ?? '',
       kodeTiket: json['kode_tiket'] ?? '',
       name: json['name'] ?? '',
       place: json['place'] ?? '',
       quantity: json['quantity'] ?? 0,
-      price: (json['price'] is String)
-          ? double.parse(json['price'])
-          : json['price'] ?? 0.0,
+      price: json['price'] != null
+          ? (json['price'] is String)
+              ? double.tryParse(json['price']) ?? 0.0
+              : json['price'].toDouble()
+          : 0.0,
       description: json['description'] ?? '',
-      status: json['status'] ?? 'unknown', // Default status if null
+      status: json['status'] ?? 'unknown',
       datetime: DateTime.tryParse(json['datetime'] ?? '') ?? DateTime.now(),
       expiryDate:
           DateTime.tryParse(json['expiry_date'] ?? '') ?? DateTime.now(),

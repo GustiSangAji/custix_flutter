@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:custix/api/api_service.dart';
-import 'package:custix/api/auth.dart';
 import 'package:custix/model/ticket_model.dart';
 import 'package:custix/screen/add_tiket.dart';
 
@@ -27,8 +26,7 @@ class _TicketListState extends State<TicketList> {
 
   void _loadTickets() async {
     try {
-      var ticketsData =
-          await apiService.fetchTickets('available', token: widget.token);
+      var ticketsData = await apiService.fetchTickets(token: widget.token);
       setState(() {
         _tickets = ticketsData.map((json) => Ticket.fromJson(json)).toList();
         _isLoading = false;
@@ -58,24 +56,31 @@ class _TicketListState extends State<TicketList> {
                       subtitle: Text(ticket.place),
                       trailing: IconButton(
                         icon: Icon(Icons.edit),
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async {
+                          final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    add_Tiket(selectedId: ticket.uuid)),
+                              builder: (context) =>
+                                  add_Tiket(selectedId: ticket.uuid),
+                            ),
                           );
+                          if (result == true) {
+                            _loadTickets(); // Refresh data jika tiket diubah
+                          }
                         },
                       ),
                     );
                   },
                 ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => add_Tiket()),
           );
+          if (result == true) {
+            _loadTickets(); // Refresh data jika tiket baru dibuat
+          }
         },
         child: Icon(Icons.add),
       ),
