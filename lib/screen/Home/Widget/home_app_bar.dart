@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:custix/api/ticket.dart';
 
 class CustomAppBar extends StatelessWidget {
-  const CustomAppBar({
-    super.key,
-  });
+  const CustomAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white, // Menggunakan background color sesuai tema
+      backgroundColor: Colors.white,
       title: Image.asset(
-        "assets/images/custiket.png", // Ganti dengan logo Anda
-        height: 100, // Sesuaikan tinggi logo
-        width: 100, // Sesuaikan lebar logo
+        "assets/images/custiket.png", // Logo
+        height: 100,
+        width: 100,
       ),
       actions: <Widget>[
         // Tombol pencarian
@@ -29,10 +28,8 @@ class CustomAppBar extends StatelessWidget {
                   const begin = Offset(1.0, 0.0);
                   const end = Offset.zero;
                   const curve = Curves.easeInOut;
-
                   var tween = Tween(begin: begin, end: end)
                       .chain(CurveTween(curve: curve));
-
                   return SlideTransition(
                     position: animation.drive(tween),
                     child: child,
@@ -73,11 +70,28 @@ class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
   @override
-  _SearchPageState createState() => _SearchPageState();
+  SearchPageState createState() => SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class SearchPageState extends State<SearchPage> {
   String _searchQuery = '';
+  List<dynamic> _searchResults = [];
+  final TicketRepository _ticketRepository = TicketRepository();
+
+  // Fungsi untuk mencari tiket
+  void _searchTickets(String query) async {
+    try {
+      final results = await _ticketRepository.searchTickets(query);
+      setState(() {
+        _searchResults = results;
+      });
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        _searchResults = [];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +102,13 @@ class _SearchPageState extends State<SearchPage> {
             setState(() {
               _searchQuery = query;
             });
+            if (query.isNotEmpty) {
+              _searchTickets(query);
+            } else {
+              setState(() {
+                _searchResults.clear();
+              });
+            }
           },
           decoration: const InputDecoration(
             hintText: 'Search...',
@@ -98,12 +119,34 @@ class _SearchPageState extends State<SearchPage> {
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
       ),
-      body: Center(
-        child: Text(
-          'Search Results for "$_searchQuery"',
-          style: const TextStyle(fontSize: 18),
-        ),
-      ),
+      body: _searchResults.isEmpty
+          ? Center(
+              child: Text(
+                'No results found for "$_searchQuery"',
+                style: const TextStyle(fontSize: 18),
+              ),
+            )
+          : ListView.builder(
+              itemCount: _searchResults.length,
+              itemBuilder: (context, index) {
+                final ticket = _searchResults[index];
+                final String baseUrl = 'http://192.168.2.101:8000';
+                return ListTile(
+                  leading: Image.network(
+                    Uri.parse(
+                            '$baseUrl/${ticket['image'].replaceFirst(RegExp(r'^/'), '')}')
+                        .toString(),
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.error),
+                  ),
+                  title: Text(ticket['name']),
+                  subtitle: Text('${ticket['place']} - ${ticket['datetime']}'),
+                );
+              },
+            ),
     );
   }
 }
