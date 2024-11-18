@@ -66,50 +66,49 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            SizedBox(
-              height: 300,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                physics: PageScrollPhysics(),
-                padding: EdgeInsets.symmetric(vertical: 10),
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      left: index == 0 ? 15 : 10,
-                      right: index == products.length - 1 ? 15 : 0,
-                    ),
-                    child: ProductCard(product: products[index]),
-                  );
-                },
+              SizedBox(
+                height: 300,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: PageScrollPhysics(),
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        left: index == 0 ? 15 : 10,
+                        right: index == products.length - 1 ? 15 : 0,
+                      ),
+                      child: ProductCard(product: products[index]),
+                    );
+                  },
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.movie_outlined, 
-                    color: kprimaryColor,
-                    size: 35,
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    "That's all for now",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black54,
+              SizedBox(height: 20),
+              Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.movie_outlined,
+                      color: kprimaryColor,
+                      size: 35,
                     ),
-                  ),
-                ],
+                    SizedBox(width: 10),
+                    Text(
+                      "That's all for now",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 40),
-          ],
-        ),
-      ),
-    );
+              SizedBox(height: 40),
+            ],
+          ),
+        ));
   }
 }

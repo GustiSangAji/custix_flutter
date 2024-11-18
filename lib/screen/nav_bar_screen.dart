@@ -1,3 +1,4 @@
+import 'package:custix/screen/Profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'constants.dart';
@@ -18,7 +19,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   final List<Widget> _screens = const [
     HomeScreen(),
     CartScreen(),
-    Scaffold(), // Placeholder for Profile screen
+    Profile(), 
   ];
 
   SvgPicture svgIcon(String src, {Color? color}) {
@@ -74,3 +75,4 @@ class _BottomNavBarState extends State<BottomNavBar> {
     );
   }
 }
+

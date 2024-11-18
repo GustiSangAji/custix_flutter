@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:custix/api/auth.dart';
 import 'package:lottie/lottie.dart'; // Import Lottie
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,40 +10,34 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
-  final AuthRepository _authRepository = AuthRepository();
   bool _isVisible = false;
 
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
-    _animateLogo();
+    _animateLogo(); // Menambahkan animasi logo dan pengecekan onboarding
   }
 
   // Fungsi untuk menambahkan animasi fade-in pada logo
   Future<void> _animateLogo() async {
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     setState(() {
       _isVisible = true;
     });
 
-    // Menunggu beberapa detik untuk animasi selesai, kemudian arahkan ke halaman login
-    await Future.delayed(Duration(milliseconds: 4500));
+    // Menunggu beberapa detik untuk animasi selesai
+    await Future.delayed(const Duration(milliseconds: 4500));
 
-    bool isLoggedIn = await _authRepository.checkLoginStatus();
+    // Mengecek apakah onboarding sudah selesai
+    final prefs = await SharedPreferences.getInstance();
+    bool isOnboardingDone = prefs.getBool('isOnboardingDone') ?? false;
 
-    if (isLoggedIn) {
+    if (isOnboardingDone) {
+      // Navigasi langsung ke halaman home
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      Navigator.pushReplacementNamed(context, '/signin');
-    }
-  }
-
-  Future<void> _checkLoginStatus() async {
-    bool isLoggedIn = await _authRepository.checkLoginStatus();
-
-    if (isLoggedIn) {
-      Navigator.pushReplacementNamed(context, '/home');
+      // Jika onboarding belum selesai, arahkan ke halaman onboarding
+      Navigator.pushReplacementNamed(context, '/onboarding');
     }
   }
 
@@ -53,7 +47,7 @@ class SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: AnimatedOpacity(
           opacity: _isVisible ? 1.0 : 0.0,
-          duration: Duration(seconds: 0),
+          duration: const Duration(seconds: 1),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -62,24 +56,11 @@ class SplashScreenState extends State<SplashScreen> {
                 height: 250,
                 width: 250,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-// Halaman Login (SignInScreen)
-class SignInScreen extends StatelessWidget {
-  const SignInScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Login")),
-      body: Center(child: Text("Halaman Login")),
     );
   }
 }
