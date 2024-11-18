@@ -19,31 +19,46 @@ class ApiService {
     await prefs.setString('auth_token', token); // Menyimpan token
   }
 
-  // Mendapatkan daftar tiket
-  Future<List<dynamic>> fetchTickets(String s, {String? token}) async {
-    // Jika token tidak disertakan, ambil token dari shared preferences
-    token ??= await getToken();
+// Mendapatkan daftar tiket
+  Future<List<Map<String, dynamic>>> fetchTickets(String s,
+      {String? token}) async {
+    try {
+      // Jika token tidak disertakan, ambil token dari shared preferences
+      token ??= await _getToken();
 
-    final response = await http.get(
-      Uri.parse('$baseUrl/tiket'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    debugPrint('Status Response: ${response.statusCode}');
-    debugPrint('Headers Response: ${response.headers}');
-    debugPrint('Body Response: ${response.body}');
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      if (data['success'] == true && data['data'] != null) {
-        return List<Map<String, dynamic>>.from(data['data']);
+      // Pastikan token ada
+      if (token == null || token.isEmpty) {
+        throw Exception('Token is required');
       }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/tiket'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      debugPrint('Status Response: ${response.statusCode}');
+      debugPrint('Headers Response: ${response.headers}');
+      debugPrint('Body Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        if (data['success'] == true && data['data'] != null) {
+          // Mengembalikan list tiket
+          return List<Map<String, dynamic>>.from(data['data']);
+        } else {
+          throw Exception('Failed to load tickets: Data is null or invalid');
+        }
+      } else {
+        throw Exception('Failed to load tickets: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching tickets: $e');
+      throw Exception('Error fetching tickets: $e');
     }
-    throw Exception('Failed to load tickets');
   }
 
   // Mendapatkan tiket berdasarkan UUID
@@ -51,10 +66,12 @@ class ApiService {
     required String uuid,
     required String token,
   }) async {
-    // Jika token kosong, ambil token dari fungsi getToken()
-    token = token.isNotEmpty ? token : (await getToken())!;
-
     try {
+      // Pastikan token ada
+      if (token.isEmpty) {
+        throw Exception('Token is required');
+      }
+
       final response = await http.get(
         Uri.parse('$baseUrl/tiket/$uuid'),
         headers: {
@@ -64,12 +81,22 @@ class ApiService {
         },
       );
 
+      debugPrint('Status Response: ${response.statusCode}');
+      debugPrint('Headers Response: ${response.headers}');
+      debugPrint('Body Response: ${response.body}');
+
       if (response.statusCode == 200) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
+        final Map<String, dynamic> data = json.decode(response.body);
+        if (data['success'] == true && data['tiket'] != null) {
+          return data['tiket'];
+        } else {
+          throw Exception('Failed to fetch ticket: Invalid data or not found');
+        }
       } else {
         throw Exception('Failed to fetch ticket: ${response.body}');
       }
     } catch (e) {
+      debugPrint('Error occurred while fetching ticket: $e');
       throw Exception('Error occurred while fetching ticket: $e');
     }
   }
@@ -89,6 +116,7 @@ class ApiService {
     final url = Uri.parse('$baseUrl/tiket/$uuid');
     final headers = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'Authorization': 'Bearer $token',
     };
 

@@ -6,6 +6,7 @@ import 'package:custix/model/ticket_model.dart';
 import 'package:custix/api/auth.dart';
 import 'package:image_picker/image_picker.dart';
 
+// Widget untuk menambah tiket
 class add_Tiket extends StatefulWidget {
   final String? selectedId;
   const add_Tiket({Key? key, this.selectedId}) : super(key: key);
@@ -24,7 +25,7 @@ class _AddTiketPageState extends State<add_Tiket> {
   late TextEditingController _descriptionController;
   late TextEditingController _datetimeController;
   late TextEditingController _expiryDateController;
-  String _status = 'available';
+  String _status = 'available'; // Default value
   DateTime? _datetime;
   DateTime? _expiryDate;
   String? _imageFile;
@@ -66,26 +67,40 @@ class _AddTiketPageState extends State<add_Tiket> {
           return;
         }
 
+        print("Fetching ticket data for UUID: ${widget.selectedId}"); // Log
+
         var ticketDataJson = await apiService.fetchTicketByUuid(
           uuid: widget.selectedId!,
           token: token,
         );
 
+        if (ticketDataJson == null) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Tiket tidak ditemukan')));
+          return;
+        }
+
         Ticket ticketData =
             Ticket.fromJson(ticketDataJson as Map<String, dynamic>);
 
         setState(() {
+          print("Ticket data fetched: ${ticketData.toJson()}"); // Log
           _kodeTiketController.text = ticketData.kodeTiket;
           _nameController.text = ticketData.name;
           _placeController.text = ticketData.place;
           _quantityController.text = ticketData.quantity.toString();
           _priceController.text = ticketData.price.toString();
           _descriptionController.text = ticketData.description;
-          _status = ticketData.status;
+
+          // Assign the status from ticket data.
+          _status = ticketData.status ??
+              'available'; // Default to 'available' if status is null
+
           _datetime = ticketData.datetime;
           _expiryDate = ticketData.expiryDate;
-          _imageFile = ticketData.image;
-          _bannerFile = ticketData.banner;
+          _imageFile = ticketData.image; // Path relative to image
+          _bannerFile = ticketData.banner; // Path relative to banner
+
           if (_datetime != null) {
             _datetimeController.text =
                 DateFormat('yyyy-MM-dd HH:mm').format(_datetime!);
@@ -124,6 +139,7 @@ class _AddTiketPageState extends State<add_Tiket> {
       try {
         String? token = await _getToken();
         if (token != null) {
+          print("Saving ticket data: ${ticketData.toJson()}"); // Log
           await apiService.saveTicketWithToken(ticketData.toJson(), token,
               uuid: widget.selectedId);
           ScaffoldMessenger.of(context)
@@ -155,22 +171,97 @@ class _AddTiketPageState extends State<add_Tiket> {
     }
   }
 
-  // Widget gambar dengan tampilan placeholder
+  // Fungsi untuk memilih tanggal
+  Future<void> _selectDate(
+      BuildContext context, TextEditingController controller,
+      {bool isExpiry = false}) async {
+    DateTime initialDate = DateTime.now();
+    if (controller.text.isNotEmpty) {
+      initialDate = DateFormat('yyyy-MM-dd').parse(controller.text);
+    }
+
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null && pickedDate != initialDate) {
+      setState(() {
+        if (isExpiry) {
+          // Jika ini untuk tanggal kadaluarsa
+          _expiryDate = pickedDate;
+          controller.text = DateFormat('yyyy-MM-dd').format(_expiryDate!);
+        } else {
+          // Jika ini untuk tanggal dan waktu
+          _datetime = pickedDate;
+          controller.text = DateFormat('yyyy-MM-dd').format(_datetime!);
+        }
+      });
+    }
+  }
+
+  // Fungsi untuk memilih waktu
+  Future<void> _selectTime(BuildContext context) async {
+    TimeOfDay initialTime = TimeOfDay.now();
+    if (_datetimeController.text.isNotEmpty) {
+      final parts = _datetimeController.text.split(' ');
+      final timeParts = parts[1].split(':');
+      initialTime = TimeOfDay(
+          hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
+    }
+
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: initialTime,
+    );
+
+    if (pickedTime != null && pickedTime != initialTime) {
+      setState(() {
+        _datetime = DateTime(
+          _datetime?.year ?? DateTime.now().year,
+          _datetime?.month ?? DateTime.now().month,
+          _datetime?.day ?? DateTime.now().day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        _datetimeController.text = pickedTime.format(context);
+      });
+    }
+  }
+
+  final String baseUrl = 'http://192.168.2.101:8000';
   Widget _buildImageContainer(String? filePath, bool isBanner) {
+    String? imageUrl = filePath != null
+        ? Uri.parse('$baseUrl/${filePath.replaceFirst(RegExp(r'^/'), '')}')
+            .toString()
+        : null;
+
     return GestureDetector(
-      onTap: () => _pickImage(isBanner),
+      onTap: () {
+        // Logic untuk memilih gambar dapat ditambahkan di sini
+      },
       child: Container(
         height: 200,
         color: Colors.grey[200],
-        child: filePath == null
-            ? Icon(Icons.add_a_photo)
-            : Image.file(File(filePath)),
+        child: imageUrl == null
+            ? Icon(Icons.add_a_photo,
+                size: 50,
+                color: Colors.grey) // Placeholder icon jika gambar kosong
+            : Image.network(
+                imageUrl, // Menggunakan URL untuk gambar
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.error), // Menampilkan error jika gambar gagal dimuat
+              ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    var _statusTiket;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.selectedId != null ? 'Edit Tiket' : 'Tambah Tiket'),
@@ -180,7 +271,7 @@ class _AddTiketPageState extends State<add_Tiket> {
         child: Form(
           key: _formKey,
           child: ListView(
-            children: [
+            children: <Widget>[
               TextFormField(
                 controller: _kodeTiketController,
                 decoration: InputDecoration(labelText: 'Kode Tiket'),
@@ -236,40 +327,104 @@ class _AddTiketPageState extends State<add_Tiket> {
               TextFormField(
                 controller: _descriptionController,
                 decoration: InputDecoration(labelText: 'Deskripsi'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Deskripsi wajib diisi';
+                  }
+                  return null;
+                },
               ),
               Row(
                 children: [
                   Expanded(
-                    child: TextFormField(
-                      controller: _datetimeController,
-                      decoration:
-                          InputDecoration(labelText: 'Tanggal dan Waktu'),
-                      readOnly: true,
+                    child: GestureDetector(
                       onTap: () => _selectDate(context, _datetimeController),
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          controller: _datetimeController,
+                          decoration:
+                              InputDecoration(labelText: 'Tanggal & Waktu'),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Tanggal & Waktu wajib diisi';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.access_time),
+                    icon: Icon(Icons.calendar_today),
                     onPressed: () => _selectTime(context),
                   ),
                 ],
               ),
+              // New status field for Available / Not Available
+              DropdownButtonFormField<String>(
+                value: _statusTiket, // Menggunakan variabel yang dideklarasikan
+                decoration: InputDecoration(labelText: 'Status Tiket'),
+                items: ['Tersedia', 'Tidak Tersedia'].map((status) {
+                  return DropdownMenuItem(
+                    value: status,
+                    child: Text(status),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _statusTiket =
+                        value; // Menyimpan nilai yang dipilih ke variabel
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Status wajib diisi';
+                  }
+                  return null;
+                },
+              ),
+
+              // Expiry date field (date picker for expiration)
               Row(
                 children: [
                   Expanded(
-                    child: TextFormField(
-                      controller: _expiryDateController,
-                      decoration:
-                          InputDecoration(labelText: 'Tanggal Kadaluarsa'),
-                      readOnly: true,
-                      onTap: () => _selectDate(context, _expiryDateController,
-                          isExpiry: true),
+                    child: GestureDetector(
+                      onTap: () => _selectDate(context, _expiryDateController),
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          controller: _expiryDateController,
+                          decoration:
+                              InputDecoration(labelText: 'Tanggal Kadaluarsa'),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Tanggal Kadaluarsa wajib diisi';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
                     ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.calendar_today),
+                    onPressed: () =>
+                        _selectDate(context, _expiryDateController),
                   ),
                 ],
               ),
-              _buildImageContainer(_imageFile, false),
-              _buildImageContainer(_bannerFile, true),
+              SizedBox(height: 10),
+              Text(
+                "Gambar Tiket",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              _buildImageContainer(_imageFile, false), // Tiket Image
+              SizedBox(height: 10),
+              Text(
+                "Banner Tiket",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              _buildImageContainer(_bannerFile, true), // Banner Image
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _submit,
                 child: Text(widget.selectedId != null ? 'Simpan' : 'Tambah'),
@@ -279,46 +434,5 @@ class _AddTiketPageState extends State<add_Tiket> {
         ),
       ),
     );
-  }
-
-  // Fungsi memilih tanggal
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller,
-      {bool isExpiry = false}) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-    );
-    if (picked != null) {
-      setState(() {
-        if (isExpiry) {
-          _expiryDate = picked;
-        } else {
-          _datetime = picked;
-        }
-        controller.text = DateFormat('yyyy-MM-dd').format(picked);
-      });
-    }
-  }
-
-  // Fungsi memilih waktu
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked =
-        await showTimePicker(context: context, initialTime: TimeOfDay.now());
-    if (picked != null && _datetime != null) {
-      setState(() {
-        _datetime = DateTime(
-          _datetime!.year,
-          _datetime!.month,
-          _datetime!.day,
-          picked.hour,
-          picked.minute,
-        );
-        _datetimeController.text =
-            DateFormat('yyyy-MM-dd HH:mm').format(_datetime!);
-      });
-    }
   }
 }
