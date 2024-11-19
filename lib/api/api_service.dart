@@ -56,81 +56,8 @@ class ApiService {
     }
   }
 
-  // Menambahkan metode createTicket di ApiService
-  Future<void> createTicket(Map<String, dynamic> ticketData,
-      {String? token}) async {
-    try {
-      token ??= await getToken(); // Mendapatkan token
-
-      if (token == null || token.isEmpty) {
-        throw Exception('Token is required');
-      }
-
-      final response = await http.post(
-        Uri.parse('$baseUrl/tiket/store'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(ticketData), // Menyertakan data tiket
-      );
-
-      debugPrint('Response Status Code: ${response.statusCode}');
-      debugPrint('Response Body: ${response.body}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint('Ticket created successfully');
-      } else {
-        throw Exception('Failed to create ticket: ${response.body}');
-      }
-    } catch (e) {
-      debugPrint('Error creating ticket: $e');
-      throw Exception('Error creating ticket: $e');
-    }
-  }
-
-  // Menambahkan metode updateTicket di ApiService
-  Future<void> updateTicket(String uuid, Map<String, dynamic> ticketData,
-      {String? token}) async {
-    try {
-      token ??= await getToken(); // Mendapatkan token jika belum ada
-
-      if (token == null || token.isEmpty) {
-        throw Exception('Token is required');
-      }
-
-      final response = await http.put(
-        Uri.parse(
-            '$baseUrl/tiket/$uuid'), // URL untuk mengupdate tiket berdasarkan UUID
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization':
-              'Bearer $token', // Menyertakan token untuk autentikasi
-        },
-        body: jsonEncode(ticketData), // Mengirimkan data tiket untuk update
-      );
-
-      debugPrint('Response Status Code: ${response.statusCode}');
-      debugPrint('Response Body: ${response.body}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint('Ticket updated successfully');
-      } else {
-        throw Exception('Failed to update ticket: ${response.body}');
-      }
-    } catch (e) {
-      debugPrint('Error updating ticket: $e');
-      throw Exception('Error updating ticket: $e');
-    }
-  }
-
-  // Mendapatkan tiket berdasarkan UUID
-  Future<Map<String, dynamic>> fetchTicketByUuid({
-    required String uuid,
-    required String token,
-  }) async {
+  Future<Map<String, dynamic>> fetchTicketByUuid(
+      {required String uuid, required String token}) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/tiket/$uuid'),
@@ -151,12 +78,8 @@ class ApiService {
     }
   }
 
-  // Menyimpan atau memperbarui tiket
-  Future<void> saveTicket(
-    Map<String, dynamic> data, {
-    String? uuid,
-    String? token,
-  }) async {
+  Future<void> createTicket(Map<String, dynamic> ticketData,
+      {String? token}) async {
     try {
       token ??= await getToken();
 
@@ -164,35 +87,57 @@ class ApiService {
         throw Exception('Token is required');
       }
 
-      final url =
-          uuid != null ? '$baseUrl/tiket/$uuid' : '$baseUrl/tiket/store';
       final response = await http.post(
-        Uri.parse(url),
+        Uri.parse('$baseUrl/tiket/store'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token', // Pastikan token ada di header
+        },
+        body: jsonEncode(ticketData),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        debugPrint('Ticket created successfully');
+      } else {
+        throw Exception('Failed to create ticket: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error creating ticket: $e');
+    }
+  }
+
+  // Update Tiket
+  Future<void> updateTicket(String uuid, Map<String, dynamic> ticketData,
+      {String? token}) async {
+    try {
+      token ??= await getToken();
+
+      if (token == null || token.isEmpty) {
+        throw Exception('Token is required');
+      }
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/tiket/$uuid'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode(data),
+        body: jsonEncode(ticketData),
       );
 
-      debugPrint('Saving ticket to URL: $url');
-      debugPrint('Request Data: $data');
-      debugPrint('Response Status Code: ${response.statusCode}');
-      debugPrint('Response Body: ${response.body}');
-
       if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint('Ticket saved successfully');
+        debugPrint('Ticket updated successfully');
       } else {
-        throw Exception('Failed to save ticket: ${response.body}');
+        throw Exception('Failed to update ticket: ${response.body}');
       }
     } catch (e) {
-      debugPrint('Error saving ticket: $e');
-      throw Exception('Error saving ticket: $e');
+      throw Exception('Error updating ticket: $e');
     }
   }
 
-  // Menghapus tiket
+  // Delete Tiket
   Future<void> deleteTicket(String uuid, {String? token}) async {
     try {
       token ??= await getToken();
@@ -210,17 +155,12 @@ class ApiService {
         },
       );
 
-      debugPrint('Deleting ticket with UUID: $uuid');
-      debugPrint('Response Status Code: ${response.statusCode}');
-      debugPrint('Response Body: ${response.body}');
-
       if (response.statusCode == 200) {
         debugPrint('Ticket deleted successfully');
       } else {
         throw Exception('Failed to delete ticket: ${response.body}');
       }
     } catch (e) {
-      debugPrint('Error deleting ticket: $e');
       throw Exception('Error deleting ticket: $e');
     }
   }

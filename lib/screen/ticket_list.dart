@@ -39,6 +39,18 @@ class _TicketListState extends State<TicketList> {
     }
   }
 
+  // Fungsi untuk menghapus tiket
+  void _deleteTicket(String uuid) async {
+    try {
+      await apiService.deleteTicket(uuid, token: widget.token);
+      _loadTickets(); // Refresh data setelah tiket dihapus
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error deleting ticket: $e';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,19 +66,48 @@ class _TicketListState extends State<TicketList> {
                     return ListTile(
                       title: Text(ticket.name),
                       subtitle: Text(ticket.place),
+                      onTap: () async {
+                        // Arahkan ke halaman edit saat body tiket ditekan
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                add_Tiket(selectedId: ticket.uuid),
+                          ),
+                        );
+                        if (result == true) {
+                          _loadTickets(); // Refresh data jika tiket diubah
+                        }
+                      },
                       trailing: IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  add_Tiket(selectedId: ticket.uuid),
-                            ),
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          // Mengonfirmasi penghapusan tiket
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Hapus Tiket'),
+                                content: Text(
+                                    'Apakah Anda yakin ingin menghapus tiket ini?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Batal'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      _deleteTicket(ticket.uuid);
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Hapus'),
+                                  ),
+                                ],
+                              );
+                            },
                           );
-                          if (result == true) {
-                            _loadTickets(); // Refresh data jika tiket diubah
-                          }
                         },
                       ),
                     );
