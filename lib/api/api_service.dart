@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart'; // Pastikan Flutter diimpor agar debugPrint tersedia
-import 'package:custix/model/ticket_model.dart'; // Pastikan model ticket_model.dart sudah sesuai
+//import 'package:custix/model/ticket_model.dart'; // Pastikan model ticket_model.dart sudah sesuai
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {

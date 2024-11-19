@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:custix/model/user.dart'; // Gantilah dengan model yang sesuai
+//import 'package:custix/model/user.dart'; // Gantilah dengan model yang sesuai
 import 'package:custix/model/DashboardData.dart'; // Pastikan Anda memiliki model DashboardData
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';

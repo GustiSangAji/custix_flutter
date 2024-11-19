@@ -52,12 +52,16 @@ class _AddTiketPageState extends State<add_Tiket> {
 
   Future<void> _fetchTicketData(String uuid) async {
     try {
+      // Mengambil data tiket menggunakan ApiService
       final response = await ApiService().fetchTicketByUuid(
         uuid: uuid,
         token: await _getToken() ?? '',
       );
+
+      // Mengambil tiket dari response
       final ticket = response['tiket'];
 
+      // Memperbarui state dengan data tiket yang diterima
       setState(() {
         _kodeTiketController.text = ticket['kode_tiket'] ?? '';
         _nameController.text = ticket['name'] ?? '';
@@ -65,22 +69,30 @@ class _AddTiketPageState extends State<add_Tiket> {
         _quantityController.text = ticket['quantity']?.toString() ?? '0';
         _priceController.text = ticket['price']?.toString() ?? '0.0';
         _descriptionController.text = ticket['description'] ?? '';
+
+        // Mengonversi tanggal ke DateTime jika tersedia
         _datetime = ticket['datetime'] != null
             ? DateTime.parse(ticket['datetime'])
             : null;
         _expiryDate = ticket['expiry_date'] != null
             ? DateTime.parse(ticket['expiry_date'])
             : null;
+
+        // Mengatur status tiket berdasarkan kondisi
         _statusTiket =
             ticket['status'] == 'available' ? 'Tersedia' : 'Tidak Tersedia';
+
+        // Mengambil URL gambar dan banner jika ada
         _imageUrl = ticket['image'] != null
             ? 'http://192.168.2.101:8000/storage/${ticket['image']}'
             : null;
+
         _bannerUrl = ticket['banner'] != null
             ? 'http://192.168.2.101:8000/storage/${ticket['banner']}'
             : null;
       });
     } catch (e) {
+      // Menangani error dengan menampilkan SnackBar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal memuat data tiket: $e')),
       );

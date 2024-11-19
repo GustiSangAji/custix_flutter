@@ -1,10 +1,9 @@
+import 'package:custix/screen/Profile/profile.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'constants.dart';
 import 'package:custix/screen/Cart/cart_screen.dart';
 import 'package:custix/screen/Home/home_screen.dart';
-import 'package:custix/screen/dashboard.dart';
-import 'package:custix/screen/favorite.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'constants.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -14,97 +13,66 @@ class BottomNavBar extends StatefulWidget {
 }
 
 class _BottomNavBarState extends State<BottomNavBar> {
-  int cuttentIndex = 2;
-  List screens = [
-    Dashboard(),
-    const Favorite(),
-    const HomeScreen(),
-    const CartScreen(),
+  // Set initial value of _currentIndex to 0 (Home screen)
+  int _currentIndex = 0;  // Changed from 1 to 0
+
+  final List<Widget> _screens = const [
+    HomeScreen(),
+    CartScreen(),
+    Profile(), 
   ];
+
+  SvgPicture svgIcon(String src, {Color? color}) {
+    return SvgPicture.asset(
+      src,
+      height: 24,
+      colorFilter: ColorFilter.mode(
+          color ?? Theme.of(context).iconTheme.color!.withOpacity(
+              Theme.of(context).brightness == Brightness.dark ? 0.3 : 1),
+          BlendMode.srcIn),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            cuttentIndex = 2;
-          });
+      body: _screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          if (index != _currentIndex) {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
         },
-        shape: const CircleBorder(),
-        backgroundColor: kprimaryColor,
-        child: const Icon(
-          CupertinoIcons.ticket, // Menggunakan ikon tiket dari CupertinoIcons
-          color: Colors.white,
-          size: 35,
-        ),
+        backgroundColor: Theme.of(context).brightness == Brightness.light
+            ? Colors.white
+            : const Color(0xFF101015),
+        type: BottomNavigationBarType.fixed,
+        selectedFontSize: 12,
+        selectedItemColor: kprimaryColor,
+        unselectedItemColor: Colors.grey.shade400,
+        items: [
+          BottomNavigationBarItem(
+            icon: svgIcon("assets/images/icon/home-01.svg"),
+            activeIcon: svgIcon("assets/images/icon/home-01.svg", color: kprimaryColor),
+            label: "Home",
+          ),
+          BottomNavigationBarItem(
+            icon: svgIcon("assets/images/icon/Bag.svg"),
+            activeIcon: svgIcon("assets/images/icon/Bag.svg", color: kprimaryColor),
+            label: "Cart",
+          ),
+          BottomNavigationBarItem(
+            icon: svgIcon("assets/images/icon/Profile.svg"),
+            activeIcon:
+                svgIcon("assets/images/icon/Profile.svg", color: kprimaryColor),
+            label: "Profile",
+          ),
+        ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        elevation: 1,
-        height: 60,
-        color: const Color.fromARGB(255, 239, 229, 229),
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 10,
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  cuttentIndex = 0;
-                });
-              },
-              icon: Icon(
-                Icons.grid_view_outlined,
-                size: 30,
-                color: cuttentIndex == 0 ? kprimaryColor : Colors.grey.shade400,
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  cuttentIndex = 1;
-                });
-              },
-              icon: Icon(
-                Icons.favorite_border,
-                size: 30,
-                color: cuttentIndex == 1 ? kprimaryColor : Colors.grey.shade400,
-              ),
-            ),
-            const SizedBox(
-              width: 15,
-            ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  cuttentIndex = 3;
-                });
-              },
-              icon: Icon(
-                Icons.shopping_cart_outlined,
-                size: 30,
-                color: cuttentIndex == 3 ? kprimaryColor : Colors.grey.shade400,
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  cuttentIndex = 4;
-                });
-              },
-              icon: Icon(
-                Icons.person,
-                size: 30,
-                color: cuttentIndex == 4 ? kprimaryColor : Colors.grey.shade400,
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: screens[cuttentIndex],
     );
   }
 }
+
