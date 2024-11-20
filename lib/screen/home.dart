@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:custix/api/auth.dart';
+//import 'package:custix/api/auth.dart';
 
 class HomeScreen extends StatefulWidget {
-  final AuthRepository _AuthRepository = AuthRepository();
+ // final AuthRepository _AuthRepository = AuthRepository();
 
   HomeScreen({super.key});
 

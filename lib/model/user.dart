@@ -64,23 +64,3 @@ class Role {
     );
   }
 }
-
-class AuthResponse {
-  final bool status;
-  final User user;
-  final String token;
-
-  AuthResponse({
-    required this.status,
-    required this.user,
-    required this.token,
-  });
-
-  factory AuthResponse.fromJson(Map<String, dynamic> json) {
-    return AuthResponse(
-      status: json['status'],
-      user: User.fromJson(json['user']),
-      token: json['token'],
-    );
-  }
-}

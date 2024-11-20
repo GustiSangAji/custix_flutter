@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:custix/api/ticket.dart';
+import 'package:custix/api/ticket.dart';
 
 class CustomAppBar extends StatelessWidget {
   const CustomAppBar({super.key});
@@ -39,7 +40,7 @@ class CustomAppBar extends StatelessWidget {
             );
           },
           icon: SvgPicture.asset(
-            "assets/images/icon/search.svg",
+            "assets/images/icon/Search-01.svg",
             height: 24,
             colorFilter: ColorFilter.mode(
               Theme.of(context).iconTheme.color!,
@@ -53,7 +54,7 @@ class CustomAppBar extends StatelessWidget {
             // Aksi saat ikon notifikasi ditekan
           },
           icon: SvgPicture.asset(
-            "assets/images/icon/cart.svg",
+            "assets/images/icon/Notification.svg", // Ganti dengan ikon notifikasi yang sesuai
             height: 24,
             colorFilter: ColorFilter.mode(
               Theme.of(context).iconTheme.color!,
@@ -133,12 +134,14 @@ class SearchPageState extends State<SearchPage> {
                 final String baseUrl = 'http://192.168.2.153:8000';
                 return ListTile(
                   leading: Image.network(
-                    '$baseUrl${ticket['image']}',
+                    Uri.parse(
+                            '$baseUrl/${ticket['image'].replaceFirst(RegExp(r'^/'), '')}')
+                        .toString(),
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) =>
-                        Icon(Icons.error),
+                        const Icon(Icons.error),
                   ),
                   title: Text(ticket['name']),
                   subtitle: Text('${ticket['place']} - ${ticket['datetime']}'),

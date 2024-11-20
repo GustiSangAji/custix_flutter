@@ -37,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomAppBar(),
+                  SizedBox(height: 20),
+                  // Image Slider
                   ImageSlider(
                     currentSlide: currentSlider,
                     onChange: (value) {
