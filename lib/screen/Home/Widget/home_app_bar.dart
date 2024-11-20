@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:custix/api/ticket.dart';
+import 'package:custix/api/ticket.dart';
 
 class CustomAppBar extends StatelessWidget {
   const CustomAppBar({super.key});
@@ -130,7 +131,7 @@ class SearchPageState extends State<SearchPage> {
               itemCount: _searchResults.length,
               itemBuilder: (context, index) {
                 final ticket = _searchResults[index];
-                final String baseUrl = 'http://192.168.2.101:8000';
+                final String baseUrl = 'http://192.168.2.153:8000';
                 return ListTile(
                   leading: Image.network(
                     Uri.parse(

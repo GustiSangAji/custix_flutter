@@ -23,19 +23,16 @@ class SignInScreenState extends State<SignInScreen> {
 
     try {
       final authRepository = AuthRepository();
-      bool loginSuccess = await authRepository.login(
+      await authRepository.login(
         _emailController.text,
         _passwordController.text,
       );
 
-      if (loginSuccess) {
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        _showErrorSnackbar(
-            'Login gagal. Periksa kembali email dan password Anda.');
-      }
+      // Arahkan ke halaman utama setelah login
+      Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
-      _showErrorSnackbar(e.toString());
+      _showErrorSnackbar(
+          'Login gagal. Periksa kembali email dan password Anda.');
     } finally {
       setState(() {
         _isLoading = false;
@@ -225,4 +222,3 @@ class SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 }
-  
