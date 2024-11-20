@@ -416,8 +416,6 @@ class _AddTiketPageState extends State<add_Tiket> {
               ),
             ),
 
-            // Status Tiket
-
             // Tombol Submit
             SizedBox(height: 20),
             ElevatedButton(

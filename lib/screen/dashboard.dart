@@ -2,26 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:custix/widgets/legend_indicator.dart' as legend;
 import 'package:custix/widgets/summary_card.dart' as summary;
 import 'package:custix/widgets/drawer_menu.dart';
-import 'package:custix/model/DashboardData.dart'; // Mengimpor model DashboardData
-import 'package:custix/api/dashboard.dart'; // Mengimpor DashboardRepository
-import 'package:custix/api/auth.dart'; // Mengimpor AuthRepository
+import 'package:custix/model/DashboardData.dart';
+import 'package:custix/api/dashboard.dart';
+import 'package:custix/api/auth.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Dashboard extends StatefulWidget {
   @override
   _DashboardState createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard>
-    with SingleTickerProviderStateMixin {
+class _DashboardState extends State<Dashboard> {
   bool _isDarkMode = false;
-  late PageController _pageController;
   late Future<DashboardData> dashboardData;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
     dashboardData = _fetchDashboardData();
   }
 
@@ -42,17 +40,15 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
         centerTitle: true,
+        elevation: 10,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(),
+        ),
         actions: [
           IconButton(
             icon: Icon(_isDarkMode ? Icons.dark_mode : Icons.light_mode),
@@ -74,121 +70,145 @@ class _DashboardState extends State<Dashboard>
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
             final data = snapshot.data!;
-            return PageView(
-              controller: _pageController,
-              children: [
-                _buildDashboardTab(data),
-                _buildStatusTab(data),
-              ],
+            return SingleChildScrollView(
+              // Membungkus konten agar bisa di-scroll
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Ringkasan Statistik dengan card yang lebih futuristik
+                    Card(
+                      elevation: 15,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Ringkasan Statistik',
+                              style: GoogleFonts.roboto(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            SizedBox(
+                              height: 250,
+                              child: PieChart(
+                                PieChartData(
+                                  sections: [
+                                    PieChartSectionData(
+                                      color: Colors.cyan,
+                                      value: data.pendapatan.toDouble(),
+                                      title: 'Rp ${data.pendapatan}',
+                                      radius: 60,
+                                    ),
+                                    PieChartSectionData(
+                                      color: Colors.red,
+                                      value: data.tiket.toDouble(),
+                                      title: data.tiket.toString(),
+                                      radius: 60,
+                                    ),
+                                    PieChartSectionData(
+                                      color: Colors.blue,
+                                      value: data.pelanggan.toDouble(),
+                                      title: data.pelanggan.toString(),
+                                      radius: 60,
+                                    ),
+                                  ],
+                                  sectionsSpace: 4,
+                                  centerSpaceRadius: 50,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              spacing: 20,
+                              runSpacing: 10,
+                              children: [
+                                legend.LegendIndicator(
+                                    title: 'Total Penjualan',
+                                    color: Colors.cyan),
+                                legend.LegendIndicator(
+                                    title: 'Total Tiket', color: Colors.red),
+                                legend.LegendIndicator(
+                                    title: 'User', color: Colors.blue),
+                                legend.LegendIndicator(
+                                    title: 'Total Pendapatan',
+                                    color:
+                                        const Color.fromARGB(255, 5, 134, 9)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    // Ringkasan Data (User dan Total Tiket) dengan animasi
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                            child: summary.SummaryCard(
+                              title: 'User',
+                              value: data.pelanggan,
+                              icon: Icons.person,
+                              color: Colors.white,
+                              backgroundColor: Colors.blue,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut,
+                            child: summary.SummaryCard(
+                              title: 'Total Tiket',
+                              value: data.tiket,
+                              icon: Icons.confirmation_num,
+                              color: Colors.white,
+                              backgroundColor: Colors.red,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    // Total Pendapatan di tengah dengan desain elegan
+                    Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.85,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                          child: summary.SummaryCard(
+                            title: 'Total Pendapatan',
+                            value: data.pendapatan,
+                            icon: Icons.attach_money,
+                            color: Colors.white,
+                            backgroundColor:
+                                const Color.fromARGB(255, 15, 169, 20),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           } else {
             return const Center(child: Text('No data available'));
           }
         },
-      ),
-    );
-  }
-
-  Widget _buildDashboardTab(DashboardData data) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: GridView.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          summary.SummaryCard(
-            title: 'User',
-            value: data.pelanggan,
-            icon: Icons.person,
-            color: Colors.white,
-            backgroundColor: Colors.blue,
-          ),
-          summary.SummaryCard(
-            title: 'Total Pendapatan',
-            value: data.pendapatan,
-            icon: Icons.attach_money,
-            color: Colors.white,
-            backgroundColor: Colors.green,
-          ),
-          summary.SummaryCard(
-            title: 'Total Tiket',
-            value: data.tiket,
-            icon: Icons.confirmation_num,
-            color: Colors.white,
-            backgroundColor: Colors.red,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusTab(DashboardData data) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Card(
-            elevation: 4,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  const Text(
-                    'Ringkasan Statistik',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 250,
-                    child: PieChart(
-                      PieChartData(
-                        sections: [
-                          PieChartSectionData(
-                            color: Colors.cyan,
-                            value: data.pendapatan.toDouble(),
-                            title: 'Rp ${data.pendapatan}',
-                          ),
-                          PieChartSectionData(
-                            color: Colors.red,
-                            value: data.tiket.toDouble(),
-                            title: data.tiket.toString(),
-                          ),
-                          PieChartSectionData(
-                            color: Colors.blue,
-                            value: data.pelanggan.toDouble(),
-                            title: data.pelanggan.toString(),
-                          ),
-                        ],
-                        sectionsSpace: 4,
-                        centerSpaceRadius: 50,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 20,
-                    runSpacing: 10,
-                    children: [
-                      legend.LegendIndicator(
-                          title: 'Total Penjualan', color: Colors.cyan),
-                      legend.LegendIndicator(
-                          title: 'Total Tiket', color: Colors.red),
-                      legend.LegendIndicator(title: 'User', color: Colors.blue),
-                      legend.LegendIndicator(
-                          title: 'Total Pendapatan', color: Colors.green),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
