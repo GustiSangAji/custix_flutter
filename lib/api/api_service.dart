@@ -5,7 +5,7 @@ import 'package:flutter/material.dart'; // Pastikan Flutter diimpor agar debugPr
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.2.153:8000/api';
+  static const String baseUrl = 'http://192.168.2.154:8000/api';
 
   // Mendapatkan token dari SharedPreferences
   Future<String?> getToken() async {

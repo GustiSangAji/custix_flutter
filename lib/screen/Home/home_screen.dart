@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   return const Center(child: Text('Tidak ada tiket tersedia'));
                 } else {
                   final tickets = snapshot.data!;
-                  const String baseUrl = 'http://192.168.2.153:8000/storage/';
+                  const String baseUrl = 'http://192.168.2.154:8000/storage/';
                   return SizedBox(
                     height: 280, // Batasi tinggi kartu secara keseluruhan
                     child: ListView.builder(

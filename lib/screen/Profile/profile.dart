@@ -49,9 +49,11 @@ class Profile extends StatefulWidget {
 }
 
 class ProfileState extends State<Profile> {
+  String userRole = ""; // Variabel untuk menyimpan role pengguna
   File? _profileImage;
   String userName = "";
   String userEmail = "";
+  String photo = "";
   bool isLoggedIn = false;
   bool isLoading = true; // Tambahkan variabel isLoading
 
@@ -68,7 +70,9 @@ class ProfileState extends State<Profile> {
     setState(() {
       userName = prefs.getString('user_name') ?? "User Name";
       userEmail = prefs.getString('user_email') ?? "User Email";
+      userRole = prefs.getString('user_role') ?? "user";
       isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+      photo = prefs.getString('photo') ?? "photo";
       isLoading = false; // Setelah selesai, ubah loading ke false
     });
   }
@@ -135,6 +139,14 @@ class ProfileState extends State<Profile> {
       );
     }
 
+    // Filter menu berdasarkan role
+    List<CustomListTile> filteredListTiles = customListTiles.where((tile) {
+      if (tile.title == "Dashboard" && userRole != "admin") {
+        return false;
+      }
+      return true;
+    }).toList();
+
     // Jika pengguna sudah login
     return Scaffold(
       appBar: AppBar(
@@ -171,18 +183,16 @@ class ProfileState extends State<Profile> {
         children: [
           Column(
             children: [
+              // Profil pengguna
               Stack(
                 children: [
                   CircleAvatar(
                     radius: 60,
-                    backgroundImage: _profileImage != null
-                        ? FileImage(_profileImage!)
-                        : user['photo'] != null && user['photo'].isNotEmpty
-                            ? NetworkImage(
-                                'http://192.168.2.153:8000/storage/${user['photo']}')
-                            : const AssetImage(
-                                    'assets/images/default_avatar.png')
-                                as ImageProvider,
+                    backgroundImage: NetworkImage(
+                      'http://192.168.2.154:8000$photo',
+                    ),
+                    backgroundColor:
+                        Colors.grey[200], // Untuk background warna jika loading
                   ),
                   Positioned(
                     bottom: 0,
@@ -225,9 +235,9 @@ class ProfileState extends State<Profile> {
             ),
           ),
           ...List.generate(
-            customListTiles.length,
+            filteredListTiles.length,
             (index) {
-              final tile = customListTiles[index];
+              final tile = filteredListTiles[index];
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                 child: ListTile(
