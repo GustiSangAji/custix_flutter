@@ -249,181 +249,287 @@ class _AddTiketPageState extends State<add_Tiket> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.selectedId == null ? 'Tambah Tiket' : 'Edit Tiket'),
+        title: Text(
+          widget.selectedId == null ? 'Tambah Tiket' : 'Edit Tiket',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        backgroundColor: Colors.blueAccent,
+        centerTitle: true,
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: EdgeInsets.all(16),
-          children: [
-            // Input Kode Tiket
-            TextFormField(
-              controller: _kodeTiketController,
-              decoration: InputDecoration(labelText: 'Kode Tiket'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Kode Tiket wajib diisi';
-                }
-                return null;
-              },
+      backgroundColor: Colors.grey.shade200, // Latar belakang modern
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              colors: [Colors.white.withOpacity(0.9), Colors.grey.shade100],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade300,
+                blurRadius: 10,
+                spreadRadius: 2,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Judul Form
+              Center(
+                child: Text(
+                  widget.selectedId == null ? 'Tambah Tiket' : 'Edit Tiket',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent,
+                  ),
+                ),
+              ),
 
-            // Input Nama Tiket
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'Nama Tiket'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Nama Tiket wajib diisi';
-                }
-                return null;
-              },
-            ),
+              SizedBox(height: 20),
 
-            // Input Tempat Konser
-            TextFormField(
-              controller: _placeController,
-              decoration: InputDecoration(labelText: 'Tempat Konser'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Tempat Konser wajib diisi';
-                }
-                return null;
-              },
-            ),
+              // Input Fields
+              _buildInputField(
+                controller: _kodeTiketController,
+                label: 'Kode Tiket',
+                hintText: 'Masukkan kode tiket',
+                icon: Icons.confirmation_number_outlined,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Kode Tiket wajib diisi'
+                    : null,
+              ),
 
-            // Input Deskripsi Tiket
-            TextFormField(
-              controller: _descriptionController,
-              decoration: InputDecoration(labelText: 'Deskripsi Tiket'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Deskripsi wajib diisi';
-                }
-                return null;
-              },
-            ),
+              SizedBox(height: 16),
 
-            DropdownButton<String>(
-              value: _statusTiket,
-              items: <String>['Tersedia', 'Tidak Tersedia']
-                  .map((e) => DropdownMenuItem<String>(
-                        value: e,
-                        child: Text(e),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _statusTiket = value;
-                });
-              },
-            ),
-            // Input Harga
-            // Jumlah Tiket
-            TextFormField(
-              controller: _quantityController,
-              decoration: InputDecoration(labelText: 'Jumlah'),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Jumlah wajib diisi';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: _priceController,
-              decoration: InputDecoration(labelText: 'Harga'),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Harga wajib diisi';
-                }
-                return null;
-              },
-            ),
+              _buildInputField(
+                controller: _nameController,
+                label: 'Nama Tiket',
+                hintText: 'Masukkan nama tiket',
+                icon: Icons.event_seat_outlined,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Nama Tiket wajib diisi'
+                    : null,
+              ),
 
-            // Input Tanggal dan Waktu
-            TextFormField(
-              controller: TextEditingController(
-                text: _datetime == null
+              SizedBox(height: 16),
+
+              _buildInputField(
+                controller: _placeController,
+                label: 'Tempat Konser',
+                hintText: 'Masukkan tempat konser',
+                icon: Icons.place_outlined,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Tempat Konser wajib diisi'
+                    : null,
+              ),
+
+              SizedBox(height: 16),
+
+              _buildInputField(
+                controller: _descriptionController,
+                label: 'Deskripsi Tiket',
+                hintText: 'Masukkan deskripsi tiket',
+                icon: Icons.description_outlined,
+                maxLines: 3,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Deskripsi wajib diisi'
+                    : null,
+              ),
+
+              SizedBox(height: 16),
+
+              // Status Tiket
+              Text('Status Tiket',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: _statusTiket,
+                items: <String>['Tersedia', 'Tidak Tersedia']
+                    .map((e) => DropdownMenuItem<String>(
+                          value: e,
+                          child: Text(e),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _statusTiket = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade200,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                ),
+              ),
+
+              SizedBox(height: 16),
+
+              _buildInputField(
+                controller: _quantityController,
+                label: 'Jumlah Tiket',
+                hintText: 'Masukkan jumlah tiket',
+                icon: Icons.format_list_numbered_outlined,
+                keyboardType: TextInputType.number,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Jumlah wajib diisi'
+                    : null,
+              ),
+
+              SizedBox(height: 16),
+
+              _buildInputField(
+                controller: _priceController,
+                label: 'Harga Tiket',
+                hintText: 'Masukkan harga tiket',
+                icon: Icons.attach_money_outlined,
+                keyboardType: TextInputType.number,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Harga wajib diisi' : null,
+              ),
+
+              SizedBox(height: 16),
+
+              // Tanggal dan Waktu
+              _buildDateField(
+                label: 'Tanggal dan Waktu',
+                value: _datetime == null
                     ? 'Pilih Tanggal dan Waktu'
                     : '${DateFormat('dd MMM yyyy').format(_datetime!)} - ${_timeOfDay?.format(context)}',
+                icon: Icons.calendar_today_outlined,
+                onTap: () async {
+                  await _pickDate();
+                  await _pickTime();
+                  setState(() {});
+                },
               ),
-              decoration: InputDecoration(
-                labelText: 'Tanggal dan Waktu',
-                suffixIcon:
-                    Icon(Icons.calendar_today), // Pindahkan ikon ke kanan
-              ),
-              readOnly: true, // Membuat field hanya bisa dibaca
-              onTap: () async {
-                // Tanggal dan Waktu dipilih bersama-sama
-                await _pickDate(); // Ambil tanggal
-                await _pickTime(); // Ambil waktu
-                setState(() {}); // Memperbarui tampilan setelah memilih
-              },
-            ),
-// Input Tanggal Kadaluarsa
-            TextFormField(
-              controller: TextEditingController(
-                text: _expiryDate == null
+
+              SizedBox(height: 16),
+
+              // Tanggal Kadaluarsa
+              _buildDateField(
+                label: 'Tanggal Kadaluarsa',
+                value: _expiryDate == null
                     ? 'Pilih Tanggal Kadaluarsa'
                     : DateFormat('dd MMM yyyy').format(_expiryDate!),
+                icon: Icons.event_busy_outlined,
+                onTap: () async {
+                  await _pickExpiryDate();
+                  setState(() {});
+                },
               ),
-              decoration: InputDecoration(
-                labelText: 'Tanggal Kadaluarsa',
-                suffixIcon:
-                    Icon(Icons.calendar_today), // Pindahkan ikon ke kanan
-              ),
-              readOnly: true, // Membuat field hanya bisa dibaca
-              onTap: () async {
-                // Pilih tanggal kadaluarsa
-                await _pickExpiryDate();
-                setState(() {}); // Memperbarui tampilan setelah memilih
-              },
-            ),
 
-// Memberi jarak antar elemen
-            SizedBox(height: 20), // Anda bisa menyesuaikan jaraknya
+              SizedBox(height: 16),
 
-// Gambar Tiket dan Banner
-            GestureDetector(
-              onTap: () => _pickImage(false),
-              child: Container(
-                padding: EdgeInsets.all(8), // Memberi jarak di dalam border
-                decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Colors.grey, width: 2), // Memberi border
-                  borderRadius: BorderRadius.circular(
-                      8), // Membuat sudut border melengkung
-                ),
+              // Gambar Tiket dan Banner
+              Text('Gambar Tiket',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              GestureDetector(
+                onTap: () => _pickImage(false),
                 child: _buildImageContainer(_imageUrl, _imageFile, false),
               ),
-            ),
 
-            SizedBox(height: 20), // Memberi jarak antar gambar tiket dan banner
-            GestureDetector(
-              onTap: () => _pickImage(true),
-              child: Container(
-                padding: EdgeInsets.all(8), // Memberi jarak di dalam border
-                decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Colors.grey, width: 2), // Memberi border
-                  borderRadius: BorderRadius.circular(
-                      8), // Membuat sudut border melengkung
-                ),
+              SizedBox(height: 16),
+
+              Text('Banner Tiket',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              GestureDetector(
+                onTap: () => _pickImage(true),
                 child: _buildImageContainer(_bannerUrl, _bannerFile, true),
               ),
-            ),
 
-            // Tombol Submit
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _submit,
-              child: Text(widget.selectedId == null
-                  ? 'Tambah Tiket'
-                  : 'Perbarui Tiket'),
+              SizedBox(height: 24),
+
+              // Tombol Submit
+              Center(
+                child: ElevatedButton(
+                  onPressed: _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  ),
+                  child: Text(
+                    widget.selectedId == null
+                        ? 'Tambah Tiket'
+                        : 'Perbarui Tiket',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+// Widget untuk input field
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    String? hintText,
+    IconData? icon,
+    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hintText,
+        prefixIcon: icon != null ? Icon(icon, color: Colors.blueAccent) : null,
+        filled: true,
+        fillColor: Colors.grey.shade200,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      validator: validator,
+    );
+  }
+
+// Widget untuk input tanggal
+  Widget _buildDateField({
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+    IconData? icon,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.grey.shade200,
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              value,
+              style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
+            if (icon != null) Icon(icon, color: Colors.blueAccent),
           ],
         ),
       ),
