@@ -96,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           currentSlide: currentSlider,
                           onChange: (value) {
                             setState(() {
-                              currentSlider = value;
+                              currentSlider = value % sliderImages.length;
                             });
                           },
                           images: sliderImages, // Kirimkan data slider
