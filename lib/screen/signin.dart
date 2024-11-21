@@ -52,27 +52,12 @@ class SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    //final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
     final textColor = colorScheme.onSurface;
 
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image
-          Padding(
-            padding: EdgeInsets.only(bottom: 300),
-            child: Container(
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                image: DecorationImage(
-                  image: AssetImage('assets/images/backgroundkonser1.jpg'),
-                  fit: BoxFit.cover,
-                  opacity: 0.9, // Menyesuaikan transparansi gambar
-                ),
-              ),
-            ),
-          ),
-
           // Logo di atas
           Align(
             alignment: Alignment.topCenter,

@@ -3,70 +3,53 @@ import 'package:flutter/material.dart';
 class ImageSlider extends StatelessWidget {
   final Function(int) onChange;
   final int currentSlide;
+  final List<String> images;
+
   const ImageSlider({
     super.key,
     required this.currentSlide,
     required this.onChange,
+    required this.images,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        SizedBox(
-          height: 220,
-          width: double.infinity,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: PageView(
-              scrollDirection: Axis.horizontal,
-              allowImplicitScrolling: true,
-              onPageChanged: onChange,
-              physics: const ClampingScrollPhysics(),
-              children: [
-                Image.asset(
-                  "assets/images/dewatiket.png",
-                  fit: BoxFit.cover,
-                ),
-                Image.asset(
-                  "assets/images/dewatiket.png",
-                  fit: BoxFit.cover,
-                ),
-                Image.asset(
-                  "assets/images/dewatiket.png",
-                  fit: BoxFit.cover,
-                ),
-              ],
+    return SizedBox(
+      height: 200,
+      child: PageView.builder(
+        controller: PageController(viewportFraction: 0.8), // Membuat gambar samping terlihat
+        scrollDirection: Axis.horizontal,
+        onPageChanged: onChange,
+        physics: const ClampingScrollPhysics(),
+        itemCount: images.isEmpty ? 1 : images.length,
+        itemBuilder: (context, index) {
+          if (images.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          // Cek apakah slide saat ini adalah gambar yang aktif (di tengah)
+          final isSelected = currentSlide == index;
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300), // Transisi animasi smooth
+            curve: Curves.easeInOut, // Kurva untuk animasi shadow
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              // Shadow hanya untuk gambar di tengah
+             
             ),
-          ),
-        ),
-        Positioned.fill(
-          bottom: 10,
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                5,
-                (index) => AnimatedContainer(
-                  duration:const Duration(microseconds: 300),
-                  width: currentSlide == index ? 15 : 8,
-                  height: 8,
-                  margin:const  EdgeInsets.only(right: 3),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: currentSlide == index
-                          ? const Color.fromARGB(255, 224, 220, 220)
-                          : Colors.transparent,
-                      border: Border.all(
-                        color: Colors.black,
-                      )),
+            child: Transform.scale(
+              scale: isSelected ? 1.0 : 0.9, // Efek perbesaran gambar tengah
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.network(
+                  images[index],
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 }

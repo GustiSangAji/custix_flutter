@@ -1,25 +1,25 @@
 import 'package:custix/screen/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; 
-import 'package:custix/model/product_model.dart';
+import 'package:custix/model/tiket_model.dart'; 
 
 class ProductCard extends StatelessWidget {
-  final Product product;
-  const ProductCard({super.key, required this.product});
+  final Ticket ticket; // Ganti tipe dari Product ke Ticket
+  const ProductCard({super.key, required this.ticket});
 
   @override
   Widget build(BuildContext context) {
-    
+    // Format harga
     final String formattedPrice = NumberFormat.currency(
-      locale: 'id', 
-      symbol: 'Rp', 
-      decimalDigits: 0, 
-    ).format(product.price);
+      locale: 'id',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    ).format(ticket.price);
 
     return GestureDetector(
       onTap: () {},
       child: Container(
-        width: 400, 
+        width: 400,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
@@ -35,24 +35,28 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            
+            // Gunakan URL gambar dari API
             ClipRRect(
               borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-              child: Image.asset(
-                product.image,
-                width: double.infinity,
-                height: 180,
-                fit: BoxFit.cover,
+              child: Image.network(
+              ticket.fullImageUrl, // Gunakan fullImageUrl
+              width: double.infinity,
+              height: 180,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Icon(
+                Icons.broken_image,
+                size: 180,
               ),
+            ),
+
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  
                   Text(
-                    product.title,
+                    ticket.name, // Gunakan ticket.name
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -61,7 +65,6 @@ class ProductCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 5),
-                  
                   Text(
                     formattedPrice,
                     style: TextStyle(
