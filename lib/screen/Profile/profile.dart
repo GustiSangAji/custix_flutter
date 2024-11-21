@@ -177,9 +177,12 @@ class ProfileState extends State<Profile> {
                     radius: 60,
                     backgroundImage: _profileImage != null
                         ? FileImage(_profileImage!)
-                        : const NetworkImage(
-                            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd-SG5jP0A6N_s-VDwKeUiI_JO8wFvEQDN01-R7IMdJJ_fH4j5IoXxG9V1LTqj37Rxhv8&usqp=CAU",
-                          ) as ImageProvider,
+                        : user['photo'] != null && user['photo'].isNotEmpty
+                            ? NetworkImage(
+                                'http://192.168.2.153:8000/storage/${user['photo']}')
+                            : const AssetImage(
+                                    'assets/images/default_avatar.png')
+                                as ImageProvider,
                   ),
                   Positioned(
                     bottom: 0,
