@@ -8,10 +8,15 @@ import 'package:custix/screen/dashboard.dart';
 import 'package:custix/screen/ticket_list.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:custix/screen/onboarding_screen.dart'; // Import onboarding screen
+import 'package:intl/date_symbol_data_local.dart'; // Import untuk inisialisasi data lokal
 import 'screen/nav_bar_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi data lokal untuk format tanggal
+  await initializeDateFormatting('id', null);
+
   runApp(const MyApp());
 }
 

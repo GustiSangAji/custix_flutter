@@ -30,12 +30,16 @@ class Ticket {
       name: json['name'] ?? '',
       kodeTiket: json['kode_tiket'] ?? '',
       place: json['place'] ?? '',
-      datetime: DateTime.tryParse(json['datetime'] ?? '') ?? DateTime.now(),
+      datetime: json['datetime'] != null
+          ? DateTime.tryParse(json['datetime']) ?? DateTime.now()
+          : DateTime.now(),
       quantity: json['quantity'] ?? 0,
       price: json['price'] != null
           ? (json['price'] is String)
               ? double.tryParse(json['price']) ?? 0.0
-              : json['price'].toDouble()
+              : json['price'] is int
+                  ? (json['price'] as int).toDouble()
+                  : 0.0
           : 0.0,
       image: json['image'] ?? '',
       status: json['status'] ?? 'unknown',

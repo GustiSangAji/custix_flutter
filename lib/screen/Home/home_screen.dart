@@ -83,32 +83,35 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Menambahkan padding pada CustomAppBar
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: CustomAppBar(),
+            ),
+            sliderImages.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : ImageSlider(
+                    currentSlide: currentSlider,
+                    onChange: (value) {
+                      setState(() {
+                        currentSlider = value % sliderImages.length;
+                      });
+                    },
+                    images: sliderImages, // Kirimkan data slider
+                  ),
             Padding(
               padding: const EdgeInsets.all(15),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CustomAppBar(),
                   const SizedBox(height: 20),
-                  sliderImages.isEmpty
-                      ? const Center(child: CircularProgressIndicator())
-                      : ImageSlider(
-                          currentSlide: currentSlider,
-                          onChange: (value) {
-                            setState(() {
-                              currentSlider = value % sliderImages.length;
-                            });
-                          },
-                          images: sliderImages, // Kirimkan data slider
-                        ),
-                  const SizedBox(height: 20),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children: [
                       Text(
                         "Spesial untuk anda",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 14,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -116,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         "Lihat semua",
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          fontSize: 16,
+                          fontSize: 12,
                           color: Colors.black54,
                         ),
                       ),
