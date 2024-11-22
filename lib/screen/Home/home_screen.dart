@@ -68,7 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ];
         });
       } else {
-        print('Failed to load slider images. Status code: ${response.statusCode}');
+        print(
+            'Failed to load slider images. Status code: ${response.statusCode}');
       }
     } catch (error) {
       print('Error fetching slider images: $error');
@@ -83,9 +84,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Menambahkan padding pada CustomAppBar
             Padding(
-              padding: const EdgeInsets.all(15),
+              padding: const EdgeInsets.only(bottom: 20),
               child: CustomAppBar(),
             ),
             sliderImages.isEmpty
@@ -144,7 +144,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             right: index == tickets.length - 1 ? 15 : 0,
                           ),
                           child: ProductCard(
-                            ticket: tickets[index], // Kirimkan objek Ticket langsung
+                            ticket: tickets[
+                                index], // Kirimkan objek Ticket langsung
                           ),
                         );
                       },
