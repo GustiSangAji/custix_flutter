@@ -1,4 +1,4 @@
-class Ticket {
+class Tiket {
   final int id;
   final String name;
   final String kodeTiket;
@@ -9,7 +9,7 @@ class Ticket {
   final String image;
   final String status;
 
-  Ticket({
+  Tiket({
     required this.id,
     required this.name,
     required this.kodeTiket,
@@ -22,10 +22,10 @@ class Ticket {
   });
 
   // Properti untuk URL absolut gambar
-  String get fullImageUrl => 'http://192.168.2.140:8000/storage/$image';
+  String get fullImageUrl => 'http://192.168.2.154:8000/storage/$image';
 
-  factory Ticket.fromJson(Map<String, dynamic> json) {
-    return Ticket(
+  factory Tiket.fromJson(Map<String, dynamic> json) {
+    return Tiket(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       kodeTiket: json['kode_tiket'] ?? '',

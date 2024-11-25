@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:custix/api/ticket.dart';
-import 'package:custix/api/ticket.dart';
 
 class CustomAppBar extends StatelessWidget {
   const CustomAppBar({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ImageSlider extends StatelessWidget {
+class ImageSlider extends StatefulWidget {
   final Function(int) onChange;
   final int currentSlide;
   final List<String> images;
@@ -13,40 +13,79 @@ class ImageSlider extends StatelessWidget {
   });
 
   @override
+  _ImageSliderState createState() => _ImageSliderState();
+}
+
+class _ImageSliderState extends State<ImageSlider> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.currentSlide;
+    _pageController = PageController(
+      initialPage: widget.images.length * 50,
+      viewportFraction: 0.8,
+    );
+  }
+
+  void _handlePageChange(int index) {
+    setState(() {
+      _currentIndex = index % widget.images.length;
+    });
+
+    if (index == 0) {
+      _pageController.jumpToPage(widget.images.length * 50 - 1);
+    } else if (index == widget.images.length * 100 - 1) {
+      _pageController.jumpToPage(widget.images.length * 50);
+    }
+    widget.onChange(_currentIndex);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 200,
       child: PageView.builder(
-        controller: PageController(viewportFraction: 0.8), // Membuat gambar samping terlihat
-        scrollDirection: Axis.horizontal,
-        onPageChanged: onChange,
-        physics: const ClampingScrollPhysics(),
-        itemCount: images.isEmpty ? 1 : images.length,
+        controller: _pageController,
+        onPageChanged: _handlePageChange,
+        itemCount: widget.images.length * 100,
         itemBuilder: (context, index) {
-          if (images.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          // Cek apakah slide saat ini adalah gambar yang aktif (di tengah)
-          final isSelected = currentSlide == index;
+          final loopedIndex = index % widget.images.length;
+          final isSelected = _currentIndex == loopedIndex;
 
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 300), // Transisi animasi smooth
-            curve: Curves.easeInOut, // Kurva untuk animasi shadow
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              // Shadow hanya untuk gambar di tengah
-             
-            ),
-            child: Transform.scale(
-              scale: isSelected ? 1.0 : 0.9, // Efek perbesaran gambar tengah
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: Image.network(
-                  images[index],
-                  fit: BoxFit.cover,
+          return TweenAnimationBuilder(
+            tween: Tween<double>(begin: isSelected ? 1.0 : 0.9, end: isSelected ? 1.0 : 0.9),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            builder: (context, scale, child) {
+              return Transform.scale(
+                scale: scale,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(isSelected ? 0.3 : 0.0),
+                        blurRadius: isSelected ? 6 : 0,
+                        spreadRadius: isSelected ? 2 : 0,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.network(
+                      widget.images[loopedIndex],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           );
         },
       ),

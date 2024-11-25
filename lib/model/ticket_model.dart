@@ -45,6 +45,8 @@ class Ticket {
     };
   }
 
+  String get fullImageUrl => 'http://192.168.2.154:8000/storage/$image';
+
   // Konstruktor fromJson untuk membuat objek Ticket dari Map<String, dynamic>
   factory Ticket.fromJson(Map<String, dynamic> json) {
     return Ticket(
