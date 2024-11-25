@@ -4,14 +4,14 @@ import 'package:custix/model/tiket_model.dart';
 import 'package:custix/screen/constants.dart';
 
 class ProductCard extends StatelessWidget {
-  final Ticket ticket;
-  final bool isCompact; // Tambahkan flag compact untuk grid layout
-
   const ProductCard({
     super.key,
     required this.ticket,
-    this.isCompact = false, // Default tidak compact
+    this.isCompact = false, 
   });
+
+  final bool isCompact; 
+  final Ticket ticket;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class ProductCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {},
       child: Container(
-        width: isCompact ? null : 400, // Sesuaikan ukuran untuk compact
+        width: isCompact ? null : 400, 
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
@@ -48,7 +48,7 @@ class ProductCard extends StatelessWidget {
               child: Image.network(
                 ticket.fullImageUrl,
                 width: double.infinity,
-                height: isCompact ? 120 : 180, // Sesuaikan tinggi untuk compact
+                height: isCompact ? 150 : 180, 
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => const Icon(
                   Icons.broken_image,
