@@ -5,31 +5,35 @@ import 'package:custix/screen/constants.dart';
 
 class ProductCard extends StatelessWidget {
   final Ticket ticket;
+  final bool isCompact; // Tambahkan flag compact untuk grid layout
 
-  const ProductCard({super.key, required this.ticket});
+  const ProductCard({
+    super.key,
+    required this.ticket,
+    this.isCompact = false, // Default tidak compact
+  });
 
   @override
   Widget build(BuildContext context) {
-    
     final String formattedPrice = NumberFormat.currency(
       locale: 'id',
       symbol: 'Rp',
       decimalDigits: 0,
     ).format(ticket.price);
 
-    
-    final String formattedDate = DateFormat('dd MMM yyyy', 'id').format(ticket.datetime);
+    final String formattedDate =
+        DateFormat('dd MMM yyyy', 'id').format(ticket.datetime);
 
     return GestureDetector(
       onTap: () {},
       child: Container(
-        width: 400,
+        width: isCompact ? null : 400, // Sesuaikan ukuran untuk compact
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withOpacity(0.1),
               blurRadius: 6,
               spreadRadius: 2,
               offset: Offset(0, 3),
@@ -39,17 +43,16 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            
             ClipRRect(
-              borderRadius: const BorderRadius.all( Radius.circular(8)),
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
               child: Image.network(
                 ticket.fullImageUrl,
                 width: double.infinity,
-                height: 180,
+                height: isCompact ? 120 : 180, // Sesuaikan tinggi untuk compact
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => const Icon(
                   Icons.broken_image,
-                  size: 180,
+                  size: 120,
                 ),
               ),
             ),
@@ -58,7 +61,6 @@ class ProductCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  
                   Text(
                     ticket.name.toUpperCase(),
                     style: const TextStyle(
@@ -68,17 +70,17 @@ class ProductCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 5),
-                  
+                  const SizedBox(height: 4),
                   Text(
                     '$formattedDate · ${ticket.place}',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 5),
-                  
+                  const SizedBox(height: 4),
                   Text(
                     formattedPrice,
                     style: const TextStyle(

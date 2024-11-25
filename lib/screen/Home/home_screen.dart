@@ -3,6 +3,7 @@ import 'package:custix/screen/Home/Widget/image_slider.dart';
 import 'package:custix/screen/Home/Widget/product_cart.dart';
 import 'package:custix/model/tiket_model.dart';
 import 'package:custix/screen/constants.dart';
+import 'Widget/all_products_screen.dart';
 import 'Widget/home_app_bar.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -105,22 +106,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         "Spesial untuk anda",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      Text(
-                        "Lihat semua",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12,
-                          color: Colors.black54,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AllProductsScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Lihat semua",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
                         ),
                       ),
                     ],
