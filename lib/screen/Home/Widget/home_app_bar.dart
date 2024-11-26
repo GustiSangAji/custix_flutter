@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:custix/api/ticket.dart';
+import 'package:custix/model/ticket_model.dart';
 
 class CustomAppBar extends StatelessWidget {
   const CustomAppBar({super.key});
@@ -130,12 +131,10 @@ class SearchPageState extends State<SearchPage> {
               itemCount: _searchResults.length,
               itemBuilder: (context, index) {
                 final ticket = _searchResults[index];
-                final String baseUrl = 'http://192.168.2.153:8000';
+                final String baseUrl = 'http://192.168.2.152:8000/';
                 return ListTile(
                   leading: Image.network(
-                    Uri.parse(
-                            '$baseUrl/${ticket['image'].replaceFirst(RegExp(r'^/'), '')}')
-                        .toString(),
+                    Uri.parse('$baseUrl/${ticket['image']}').toString(),
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
@@ -144,6 +143,13 @@ class SearchPageState extends State<SearchPage> {
                   ),
                   title: Text(ticket['name']),
                   subtitle: Text('${ticket['place']} - ${ticket['datetime']}'),
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/ticket_detail',
+                      arguments: Ticket,
+                    );
+                  },
                 );
               },
             ),

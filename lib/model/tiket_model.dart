@@ -22,7 +22,7 @@ class Tiket {
   });
 
   // Properti untuk URL absolut gambar
-  String get fullImageUrl => 'http://192.168.2.154:8000/storage/$image';
+  String get fullImageUrl => 'http://192.168.2.152:8000/storage/$image';
 
   factory Tiket.fromJson(Map<String, dynamic> json) {
     return Tiket(
@@ -30,12 +30,16 @@ class Tiket {
       name: json['name'] ?? '',
       kodeTiket: json['kode_tiket'] ?? '',
       place: json['place'] ?? '',
-      datetime: DateTime.tryParse(json['datetime'] ?? '') ?? DateTime.now(),
+      datetime: json['datetime'] != null
+          ? DateTime.tryParse(json['datetime']) ?? DateTime.now()
+          : DateTime.now(),
       quantity: json['quantity'] ?? 0,
       price: json['price'] != null
           ? (json['price'] is String)
               ? double.tryParse(json['price']) ?? 0.0
-              : json['price'].toDouble()
+              : json['price'] is int
+                  ? (json['price'] as int).toDouble()
+                  : 0.0
           : 0.0,
       image: json['image'] ?? '',
       status: json['status'] ?? 'unknown',

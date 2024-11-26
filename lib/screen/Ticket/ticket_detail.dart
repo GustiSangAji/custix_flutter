@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Untuk format tanggal dan mata uang
 import 'package:custix/model/ticket_model.dart'; // Pastikan import model Ticket sesuai dengan lokasi file
 import 'package:custix/screen/Home/Widget/home_app_bar.dart'; // Import CustomAppBar
+import 'package:custix/screen/Ticket/detail_pesanan.dart';
 
 class TicketDetail extends StatefulWidget {
   final Ticket ticket; // Menyimpan data ticket yang diterima
@@ -19,7 +20,7 @@ class TicketDetailState extends State<TicketDetail> {
   Widget build(BuildContext context) {
     // Mengambil objek ticket dari widget
     final ticket = widget.ticket;
-    const String baseUrl = 'http://192.168.2.154:8000/storage/';
+    const String baseUrl = 'http://192.168.2.152:8000/storage/';
     // Menghitung total harga berdasarkan jumlah tiket
     final double totalPrice = ticket.price * ticketCount;
 
@@ -205,7 +206,7 @@ class TicketDetailState extends State<TicketDetail> {
                                 IconButton(
                                   onPressed: () {
                                     setState(() {
-                                      ticketCount++;
+                                      if (ticketCount < 3) ticketCount++;
                                     });
                                   },
                                   icon: const Icon(Icons.add,
@@ -254,7 +255,15 @@ class TicketDetailState extends State<TicketDetail> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () {
-                              print('Pesan tiket sebanyak $ticketCount');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPesananPage(
+                                    ticket: ticket,
+                                    quantity: ticketCount,
+                                  ),
+                                ),
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,

@@ -21,7 +21,7 @@ class AuthResponse {
 }
 
 class AuthRepository {
-  final String baseUrl = 'http://192.168.2.154:8000/api/auth';
+  final String baseUrl = 'http://192.168.2.152:8000/api/auth';
 
   // Fungsi untuk mendapatkan token
   Future<String?> getToken() async {
