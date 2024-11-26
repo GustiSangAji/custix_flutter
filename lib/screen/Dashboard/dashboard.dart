@@ -9,6 +9,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Dashboard extends StatefulWidget {
+  const Dashboard({super.key});
+
   @override
   _DashboardState createState() => _DashboardState();
 }
@@ -43,22 +45,16 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: const Text(
+          'Dashboard',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         elevation: 10,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(),
+        backgroundColor: Colors.blue,
+        iconTheme: IconThemeData(
+          color: Colors.white,
         ),
-        actions: [
-          IconButton(
-            icon: Icon(_isDarkMode ? Icons.dark_mode : Icons.light_mode),
-            onPressed: () {
-              setState(() {
-                _isDarkMode = !_isDarkMode;
-              });
-            },
-          ),
-        ],
       ),
       drawer: DrawerMenu(),
       body: FutureBuilder<DashboardData>(
@@ -71,17 +67,16 @@ class _DashboardState extends State<Dashboard> {
           } else if (snapshot.hasData) {
             final data = snapshot.data!;
             return SingleChildScrollView(
-              // Membungkus konten agar bisa di-scroll
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Ringkasan Statistik dengan card yang lebih futuristik
+                    // Ringkasan Statistik
                     Card(
-                      elevation: 15,
+                      elevation: 10,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25)),
+                          borderRadius: BorderRadius.circular(15)),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
@@ -90,7 +85,7 @@ class _DashboardState extends State<Dashboard> {
                             Text(
                               'Ringkasan Statistik',
                               style: GoogleFonts.roboto(
-                                fontSize: 22,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87,
                               ),
@@ -102,21 +97,22 @@ class _DashboardState extends State<Dashboard> {
                                 PieChartData(
                                   sections: [
                                     PieChartSectionData(
-                                      color: Colors.cyan,
+                                      color: const Color.fromARGB(
+                                          255, 15, 169, 20),
                                       value: data.pendapatan.toDouble(),
-                                      title: 'Rp ${data.pendapatan}',
+                                      title: '', // Hapus atau kosongkan title
                                       radius: 60,
                                     ),
                                     PieChartSectionData(
                                       color: Colors.red,
                                       value: data.tiket.toDouble(),
-                                      title: data.tiket.toString(),
+                                      title: '', // Hapus atau kosongkan title
                                       radius: 60,
                                     ),
                                     PieChartSectionData(
                                       color: Colors.blue,
                                       value: data.pelanggan.toDouble(),
-                                      title: data.pelanggan.toString(),
+                                      title: '', // Hapus atau kosongkan title
                                       radius: 60,
                                     ),
                                   ],
@@ -132,16 +128,13 @@ class _DashboardState extends State<Dashboard> {
                               runSpacing: 10,
                               children: [
                                 legend.LegendIndicator(
-                                    title: 'Total Penjualan',
-                                    color: Colors.cyan),
+                                    title: 'Total Pendapatan',
+                                    color:
+                                        const Color.fromARGB(255, 20, 203, 47)),
                                 legend.LegendIndicator(
                                     title: 'Total Tiket', color: Colors.red),
                                 legend.LegendIndicator(
                                     title: 'User', color: Colors.blue),
-                                legend.LegendIndicator(
-                                    title: 'Total Pendapatan',
-                                    color:
-                                        const Color.fromARGB(255, 5, 134, 9)),
                               ],
                             ),
                           ],
@@ -149,7 +142,7 @@ class _DashboardState extends State<Dashboard> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    // Ringkasan Data (User dan Total Tiket) dengan animasi
+                    // Ringkasan Data (User dan Total Tiket)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -183,10 +176,12 @@ class _DashboardState extends State<Dashboard> {
                       ],
                     ),
                     const SizedBox(height: 16.0),
-                    // Total Pendapatan di tengah dengan desain elegan
+                    // Total Pendapatan
+                    // Total Pendapatan
                     Center(
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.85,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width *
+                            0.95, // Ubah dari 0.85 ke 0.95 untuk melebarkan
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 500),
                           curve: Curves.easeInOut,

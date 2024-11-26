@@ -3,9 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:custix/screen/signin.dart' as signin_screen;
 import 'package:custix/screen/signup.dart' as signup_screen;
 import 'package:custix/screen/loading.dart' as loading;
-import 'package:custix/screen/add_tiket.dart';
-import 'package:custix/screen/dashboard.dart';
-import 'package:custix/screen/ticket_list.dart';
+import 'package:custix/screen/Dashboard/Laporan/Laporan.dart';
+import 'package:custix/screen/Dashboard/Tiket/add_tiket.dart';
+import 'package:custix/screen/Dashboard/dashboard.dart';
+import 'package:custix/screen/Dashboard/Tiket/ticket_list.dart';
+import 'package:custix/screen/Dashboard/Stockin/stockin.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:custix/screen/onboarding_screen.dart'; // Import onboarding screen
 import 'screen/nav_bar_screen.dart';
@@ -33,6 +35,8 @@ class MyApp extends StatelessWidget {
         '/dashboard': (context) => Dashboard(),
         '/add_tiket': (context) => add_Tiket(),
         '/ticket_list': (context) => TicketList(),
+        '/Laporan': (context) => LaporanScreen(),
+        '/Stockin': (context) => Stockin(),
       },
       theme: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme(),

@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:custix/screen/constants.dart';
 
 class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
+
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
@@ -26,7 +28,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isOnboardingDone', true); // Set status onboarding selesai
+    await prefs.setBool(
+        'isOnboardingDone', true); // Set status onboarding selesai
     Navigator.pushReplacementNamed(context, '/home');
   }
 
@@ -101,12 +104,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
-
 class DotIndicator extends StatelessWidget {
   const DotIndicator({
-    Key? key,
+    super.key,
     this.isActive = false,
-  }) : super(key: key);
+  });
 
   final bool isActive;
 
@@ -154,11 +156,11 @@ final List<Onboard> demodata = [
 
 class OnboardContent extends StatelessWidget {
   const OnboardContent({
-    Key? key,
+    super.key,
     required this.image,
     required this.title,
     required this.description,
-  }) : super(key: key);
+  });
 
   final String image, title, description;
 

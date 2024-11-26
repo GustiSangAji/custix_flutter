@@ -41,10 +41,18 @@ dependencies:
   fl_chart: ^0.69.0
   carousel_slider: ^5.0.0
   google_fonts: ^6.2.1
-  intl: ^0.19.0
+  intl: ^0.20.0
   pinput: ^5.0.0
   shared_preferences: ^2.3.3
+  path: ^1.8.0  # Tambahkan ini untuk mengimpor path package
   dio: ^5.0.0
+  path_provider: ^2.0.14
+  permission_handler: ^10.4.3
+  file_picker: ^5.0.1
+  firebase_core: ^2.10.0
+  firebase_storage: ^11.0.0
+  url_launcher: ^6.1.5
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

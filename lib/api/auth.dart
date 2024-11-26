@@ -62,6 +62,7 @@ class AuthRepository {
       await prefs.setString('user_name', user.nama);
       await prefs.setString('user_email', user.email); // Menyimpan email
       await prefs.setString('user_role', user.role.name);
+      await prefs.setString('photo', user.photo);
       // Mengembalikan model User
       return user;
     } else {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:custix/api/auth.dart';
-import 'package:custix/screen/ticket_list.dart';
-import 'package:custix/screen/dashboard.dart';
+import 'package:custix/screen/Dashboard/Tiket/ticket_list.dart';
+import 'package:custix/screen/Dashboard/dashboard.dart';
 
 class DrawerMenu extends StatelessWidget {
-  const DrawerMenu({Key? key}) : super(key: key);
+  const DrawerMenu({super.key});
 
   // Fungsi logout
   void _logout(BuildContext context) {
@@ -21,13 +21,7 @@ class DrawerMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF212121), Color(0xFF414345)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        color: Colors.white, // Background putih
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -51,11 +45,11 @@ class DrawerMenu extends StatelessWidget {
                   _buildDrawerItemWithChildren(
                     context,
                     icon: Icons.category_outlined,
-                    label: "Products",
+                    label: "Events",
                     children: [
                       _buildSubDrawerItem(
                         context,
-                        label: "Add Product",
+                        label: "TIKET",
                         onTap: () async {
                           String? token = await getToken();
                           if (token != null) {
@@ -75,13 +69,23 @@ class DrawerMenu extends StatelessWidget {
                       ),
                       _buildSubDrawerItem(
                         context,
-                        label: "Manage Products",
+                        label: "STOCK-IN",
                         onTap: () {
                           Navigator.pop(context);
-                          Navigator.pushNamed(context, '/manage_products');
+                          Navigator.pushNamed(context, '/Stockin');
                         },
                       ),
                     ],
+                  ),
+                  // Menambahkan menu "Laporan" di bawah menu "Events"
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.report,
+                    label: "Laporan", // Menu Laporan
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/Laporan');
+                    },
                   ),
                   _buildDrawerItem(
                     context,
@@ -98,7 +102,7 @@ class DrawerMenu extends StatelessWidget {
               padding: const EdgeInsets.all(20.0),
               child: Text(
                 "© 2024 Custix",
-                style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -112,16 +116,12 @@ class DrawerMenu extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return DrawerHeader(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.blueAccent, // Ganti dengan warna biru terang untuk header
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            spreadRadius: 5,
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 8,
           ),
         ],
       ),
@@ -129,8 +129,8 @@ class DrawerMenu extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 40,
-            backgroundColor: Colors.white,
-            child: Icon(Icons.person, size: 50, color: Color(0xFF6A82FB)),
+            backgroundColor: Colors.white, // Background putih pada avatar
+            child: Icon(Icons.person, size: 50, color: Colors.blue),
           ),
           SizedBox(width: 15),
           Column(
@@ -138,18 +138,18 @@ class DrawerMenu extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "User Name",
+                "Admin",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.white, // Teks putih di header
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               SizedBox(height: 5),
               Text(
-                "user@example.com",
+                "Admin@gmail.com",
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: Colors.white70, // Teks putih dengan transparansi
                   fontSize: 14,
                 ),
               ),
@@ -168,12 +168,16 @@ class DrawerMenu extends StatelessWidget {
     required VoidCallback? onTap,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Colors.white),
+      leading: Icon(icon, color: Colors.black), // Ikon hitam
       title: Text(
         label,
-        style: TextStyle(color: Colors.white),
+        style: TextStyle(
+          color: Colors.black, // Teks hitam
+          fontWeight: FontWeight.w500, // Menambahkan ketebalan pada teks
+        ),
       ),
       onTap: onTap,
+      tileColor: Colors.grey[100], // Menambahkan warna latar belakang item
     );
   }
 
@@ -185,15 +189,18 @@ class DrawerMenu extends StatelessWidget {
     required List<Widget> children,
   }) {
     return ExpansionTile(
-      leading: Icon(icon, color: Colors.white),
+      leading: Icon(icon, color: Colors.black), // Ikon hitam
       title: Text(
         label,
-        style: TextStyle(color: Colors.white),
+        style: TextStyle(
+          color: Colors.black, // Teks hitam
+          fontWeight: FontWeight.w500,
+        ),
       ),
       childrenPadding: EdgeInsets.only(left: 20),
       tilePadding: EdgeInsets.symmetric(horizontal: 20),
-      iconColor: Colors.white,
-      collapsedIconColor: Colors.white,
+      iconColor: Colors.black,
+      collapsedIconColor: Colors.black,
       children: children,
     );
   }
@@ -208,12 +215,13 @@ class DrawerMenu extends StatelessWidget {
       title: Text(
         label,
         style: TextStyle(
-          color: Colors.grey[400],
+          color: Colors.grey[600], // Warna teks abu-abu untuk item sub-menu
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
       ),
       onTap: onTap,
+      tileColor: Colors.grey[50], // Latar belakang item sub-menu lebih terang
     );
   }
 }

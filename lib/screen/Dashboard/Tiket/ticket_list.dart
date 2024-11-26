@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:custix/api/api_service.dart';
 import 'package:custix/model/ticket_model.dart';
-import 'package:custix/screen/add_tiket.dart';
+import 'package:custix/screen/Dashboard/Tiket/add_tiket.dart';
 import 'package:custix/widgets/drawer_menu.dart';
 
 class TicketList extends StatefulWidget {
   final String? token;
 
-  TicketList({Key? key, this.token}) : super(key: key);
+  const TicketList({super.key, this.token});
 
   @override
   _TicketListState createState() => _TicketListState();
@@ -55,8 +55,15 @@ class _TicketListState extends State<TicketList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Daftar Tiket'),
+        title: Text(
+          'Daftar Tiket',
+          style:
+              TextStyle(color: Colors.white), // Ubah warna teks menjadi putih
+        ),
         centerTitle: true,
+        backgroundColor: Colors.blueAccent, // Background app bar biru
+        iconTheme:
+            IconThemeData(color: Colors.white), // Ubah warna ikon menjadi putih
       ),
       drawer: DrawerMenu(),
       body: _isLoading
@@ -198,6 +205,7 @@ class _TicketListState extends State<TicketList> {
           }
         },
         child: Icon(Icons.add),
+        backgroundColor: Colors.blueAccent, // Warna tombol biru
       ),
     );
   }
