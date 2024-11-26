@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
 import 'package:custix/screen/Home/Widget/product_cart.dart';
+import 'home_app_bar.dart';
 
 class AllProductsScreen extends StatefulWidget {
   const AllProductsScreen({super.key});
@@ -68,7 +69,8 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 10,
-          mainAxisSpacing: 60, // Reduced mainAxisSpacing to decrease vertical space
+          mainAxisSpacing:
+              60, // Reduced mainAxisSpacing to decrease vertical space
           childAspectRatio: 0.9,
         ),
         itemCount: 6, // Number of shimmer items to show initially
@@ -93,25 +95,36 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Semua Produk"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+      appBar: const CustomAppBar(
+        showLogo: false,
+        titleText: "Lihat Semua",
+        titleStyle: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w800,
+          color: Colors.black,
+        ),
+        showNotificationIcon: false,
+        actionPadding:
+            EdgeInsets.symmetric(horizontal: 16.0), // Tambahkan padding
       ),
       body: SafeArea(
         child: tickets.isEmpty
             ? buildShimmerGrid()
             : GridView.builder(
                 controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 10,
-                  mainAxisSpacing: 10, // Reduced mainAxisSpacing to decrease vertical space
+                  mainAxisSpacing:
+                      10, // Reduced mainAxisSpacing to decrease vertical space
                   childAspectRatio: 0.9,
                 ),
-                itemCount: tickets.length + (hasMore ? 6 : 0), // Show 6 shimmer items if more data exists
+                itemCount: tickets.length +
+                    (hasMore
+                        ? 6
+                        : 0), // Show 6 shimmer items if more data exists
                 itemBuilder: (context, index) {
                   if (index < tickets.length) {
                     // Display actual data
@@ -122,13 +135,15 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
                   } else {
                     // Show shimmer loading while data is being fetched
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 50.0), // Reduced bottom padding for shimmer
+                      padding: const EdgeInsets.only(
+                          bottom: 50.0), // Reduced bottom padding for shimmer
                       child: Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
                         child: Container(
-                          height: 220, 
-                          margin: const EdgeInsets.only(bottom: 10), // Reduced bottom margin for shimmer
+                          height: 220,
+                          margin: const EdgeInsets.only(
+                              bottom: 10), // Reduced bottom margin for shimmer
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),

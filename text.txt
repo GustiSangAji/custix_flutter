@@ -1,0 +1,241 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:custix/api/ticket.dart';
+
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final bool showLogo; 
+  final String? titleText;
+  final bool showNotificationIcon;
+  final TextStyle? titleStyle;
+
+  const CustomAppBar({
+    super.key,
+    this.showLogo = true,
+    this.titleText,
+    this.showNotificationIcon = true,
+    this.titleStyle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      automaticallyImplyLeading: false,
+      leadingWidth: 25,
+      leading: showLogo
+          ? null
+          : IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pop(),
+              color: Colors.black,
+            ),
+      title: showLogo
+          ? Image.asset(
+              "assets/images/custiket.png",
+              height: 100,
+              width: 100,
+            )
+          : Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(
+                titleText ?? "",
+                style: titleStyle ??
+                    const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black,
+                    ),
+              ),
+            ),
+      actions: <Widget>[
+        Hero(
+          tag: 'search-icon',
+          child: IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SearchPage()),
+              );
+            },
+            icon: SvgPicture.asset(
+              "assets/images/icon/Search-01.svg",
+              height: 24,
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).iconTheme.color!,
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
+        ),
+        if (showNotificationIcon)
+          IconButton(
+            onPressed: () {
+              // Add notification logic here
+            },
+            icon: SvgPicture.asset(
+              "assets/images/icon/Notification.svg",
+              height: 24,
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).iconTheme.color!,
+                BlendMode.srcIn,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class SearchPage extends StatefulWidget {
+  const SearchPage({super.key});
+
+  @override
+  SearchPageState createState() => SearchPageState();
+}
+
+class SearchPageState extends State<SearchPage> {
+  String _searchQuery = '';
+  List<dynamic> _searchResults = [];
+  bool _isLoading = false;  // To track loading state
+  final TicketRepository _ticketRepository = TicketRepository();
+
+  // Function to search tickets
+  void _searchTickets(String query) async {
+    if (query.isEmpty) {
+      setState(() {
+        _searchResults.clear();
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final results = await _ticketRepository.searchTickets(query);
+      setState(() {
+        _searchResults = results;
+      });
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        _searchResults = [];
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.search,
+                color: Colors.grey,
+                size: 30,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 1),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: TextField(
+                    onChanged: (query) {
+                      setState(() {
+                        _searchQuery = query;
+                      });
+                      _searchTickets(query);  // Trigger search on change
+                    },
+                    decoration: const InputDecoration(
+                      hintText: 'Search...',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+              GestureDetector(yg
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: const Padding(
+                  padding: EdgeInsets.only(left: 15),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _searchResults.isEmpty
+              ? Center(
+                  child: Text(
+                    'No results found for "$_searchQuery"',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: _searchResults.length,
+                  itemBuilder: (context, index) {
+                    final ticket = _searchResults[index];
+                    final String baseUrl = 'http://192.168.2.140:8000';
+                    return ListTile(
+                      leading: Image.network(
+                        Uri.parse('$baseUrl/${ticket['image'].replaceFirst(RegExp(r'^/'), '')}')
+                            .toString(),
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                      ),
+                      title: Text(ticket['name']),
+                      subtitle: Text('${ticket['place']} - ${ticket['datetime']}'),
+                    );
+                  },
+                ),
+    );
+  }
+} saat saya cari tiket nya itu pada respon di devtools nya itu malah mengembalikan semua data[{"id":1,"name":"Hellofest","place":"Makassar - Ancol Beach","datetime":"2025-01-15 15:54:33","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":2,"name":"Sundown Festival","place":"Makassar - Lapangan Golf Cengkareng","datetime":"2025-02-19 16:10:47","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":3,"name":"Synchronize Fest","place":"Makassar - Kota Tua Jakarta","datetime":"2024-11-23 14:56:02","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":4,"name":"Indo Jam Music Festival","place":"Medan - Ancol Beach","datetime":"2025-05-18 17:14:52","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":5,"name":"We The Fest","place":"Malang - Kota Tua Jakarta","datetime":"2025-06-26 22:29:34","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":6,"name":"Jakarta International BNI Java Jazz Festival","place":"Yogyakarta - Lapangan Golf Cengkareng","datetime":"2025-04-09 14:35:24","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":7,"name":"We The Fest","place":"Yogyakarta - Taman Ismail Marzuki","datetime":"2025-03-23 09:05:05","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":8,"name":"Indo Jam Music Festival","place":"Malang - Taman Ismail Marzuki","datetime":"2025-05-04 05:29:23","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":9,"name":"Jakarta International BNI Java Jazz Festival","place":"Surabaya - Trans Studio Bandung","datetime":"2025-05-26 19:30:01","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":10,"name":"Candi Jazz Festival","place":"Surabaya - Lapangan Golf Cengkareng","datetime":"2025-06-21 01:41:30","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":11,"name":"Java Jazz Festival","place":"Batam - Lapangan Golf Cengkareng","datetime":"2025-07-14 00:33:07","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":12,"name":"Prambanan Jazz Festival","place":"Semarang - Lapangan D Senayan","datetime":"2025-03-06 04:37:06","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":13,"name":"Djakarta Warehouse Project","place":"Jakarta - Lapangan Golf Cengkareng","datetime":"2025-02-15 03:53:15","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":14,"name":"Pahawang Music Festival","place":"Malang - Bali International Convention Centre","datetime":"2025-07-23 17:01:44","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":15,"name":"Festival Musik Indonesia","place":"Bandung - Lapangan Golf Cengkareng","datetime":"2025-06-07 23:27:23","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":16,"name":"Djakarta Warehouse Project","place":"Bandung - Taman Ismail Marzuki","datetime":"2025-07-19 22:38:16","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":17,"name":"Djakarta Warehouse Project","place":"Batam - Kota Tua Jakarta","datetime":"2025-01-03 23:26:11","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":18,"name":"Jakarta International BNI Java Jazz Festival","place":"Malang - Prambanan Temple","datetime":"2024-12-06 02:19:18","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":19,"name":"We The Fest","place":"Batam - Ancol Beach","datetime":"2025-04-18 18:09:25","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":20,"name":"We The Fest","place":"Malang - Bali International Convention Centre","datetime":"2024-12-04 04:50:10","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":21,"name":"Synchronize Fest","place":"Surabaya - Prambanan Temple","datetime":"2025-06-18 21:08:23","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":22,"name":"Jakarta International BNI Java Jazz Festival","place":"Semarang - Lapangan Golf Cengkareng","datetime":"2025-04-09 20:58:55","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":23,"name":"Sundown Festival","place":"Medan - Lapangan Golf Cengkareng","datetime":"2024-12-26 16:08:38","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":24,"name":"Sundown Festival","place":"Medan - Ancol Beach","datetime":"2025-04-04 22:06:52","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":25,"name":"Synchronize Fest","place":"Jakarta - Lapangan Golf Cengkareng","datetime":"2025-02-23 21:18:46","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":26,"name":"Hellofest","place":"Bandung - Lapangan D Senayan","datetime":"2025-08-07 10:49:48","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":27,"name":"Synchronize Fest","place":"Bandung - Kota Tua Jakarta","datetime":"2024-12-17 03:54:25","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":28,"name":"Candi Jazz Festival","place":"Batam - Trans Studio Bandung","datetime":"2025-07-09 03:23:29","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":29,"name":"Synchronize Fest","place":"Surabaya - Trans Studio Bandung","datetime":"2025-05-07 05:47:00","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":30,"name":"Djakarta Warehouse Project","place":"Jakarta - Ancol Beach","datetime":"2025-07-28 06:16:03","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":31,"name":"Festival Musik Indonesia","place":"Bandung - Lapangan Golf Cengkareng","datetime":"2025-10-20 01:31:07","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":32,"name":"Sundown Festival","place":"Medan - Gelora Bung Karno","datetime":"2025-01-11 01:22:33","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":33,"name":"Sundown Festival","place":"Malang - Kota Tua Jakarta","datetime":"2025-11-11 21:45:43","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":34,"name":"Indo Jam Music Festival","place":"Jakarta - Prambanan Temple","datetime":"2025-11-22 05:44:34","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":35,"name":"Pahawang Music Festival","place":"Bali - Prambanan Temple","datetime":"2025-07-21 21:31:18","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":36,"name":"We The Fest","place":"Malang - Bali International Convention Centre","datetime":"2025-06-04 08:03:52","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":37,"name":"Candi Jazz Festival","place":"Bandung - Ancol Beach","datetime":"2025-11-21 15:13:17","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":38,"name":"Festival Musik Indonesia","place":"Malang - Prambanan Temple","datetime":"2025-11-07 04:31:34","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":39,"name":"Jakarta International BNI Java Jazz Festival","place":"Semarang - Kebun Raya Bogor","datetime":"2025-07-14 11:51:19","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":40,"name":"Pahawang Music Festival","place":"Makassar - Lapangan D Senayan","datetime":"2025-06-21 21:05:40","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":41,"name":"Djakarta Warehouse Project","place":"Jakarta - Bali International Convention Centre","datetime":"2025-06-17 11:54:50","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":42,"name":"Sundown Festival","place":"Semarang - Ancol Beach","datetime":"2025-08-07 14:51:11","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":43,"name":"Jakarta International BNI Java Jazz Festival","place":"Malang - Bali International Convention Centre","datetime":"2025-03-21 13:36:23","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":44,"name":"Pahawang Music Festival","place":"Yogyakarta - Lapangan Golf Cengkareng","datetime":"2025-09-29 05:36:39","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":45,"name":"Synchronize Fest","place":"Bandung - Lapangan D Senayan","datetime":"2025-08-30 03:54:26","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":46,"name":"Candi Jazz Festival","place":"Bali - Prambanan Temple","datetime":"2025-03-10 04:39:19","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":47,"name":"Sundown Festival","place":"Medan - Prambanan Temple","datetime":"2025-07-05 16:50:46","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":48,"name":"Pahawang Music Festival","place":"Jakarta - Taman Ismail Marzuki","datetime":"2025-09-21 04:47:30","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":49,"name":"Candi Jazz Festival","place":"Jakarta - Lapangan D Senayan","datetime":"2025-08-01 11:43:28","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":50,"name":"Hellofest","place":"Jakarta - Taman Ismail Marzuki","datetime":"2025-08-27 17:28:19","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":51,"name":"Djakarta Warehouse Project","place":"Semarang - Lapangan D Senayan","datetime":"2025-11-02 02:28:26","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":52,"name":"Indo Jam Music Festival","place":"Medan - Lapangan D Senayan","datetime":"2025-04-18 14:58:49","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":53,"name":"Djakarta Warehouse Project","place":"Surabaya - Gelora Bung Karno","datetime":"2025-08-23 20:32:47","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":54,"name":"Djakarta Warehouse Project","place":"Jakarta - Lapangan Golf Cengkareng","datetime":"2025-08-30 14:12:25","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":55,"name":"We The Fest","place":"Makassar - Bali International Convention Centre","datetime":"2025-04-07 01:58:10","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":56,"name":"Synchronize Fest","place":"Jakarta - Lapangan D Senayan","datetime":"2024-12-07 21:41:32","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":57,"name":"We The Fest","place":"Semarang - Kota Tua Jakarta","datetime":"2025-05-24 00:34:15","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":58,"name":"Candi Jazz Festival","place":"Yogyakarta - Trans Studio Bandung","datetime":"2024-12-20 19:41:34","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":59,"name":"Synchronize Fest","place":"Bandung - Kota Tua Jakarta","datetime":"2024-12-18 20:56:17","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":60,"name":"Jakarta International BNI Java Jazz Festival","place":"Surabaya - Gelora Bung Karno","datetime":"2025-05-12 15:24:00","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":61,"name":"Festival Musik Indonesia","place":"Medan - Kota Tua Jakarta","datetime":"2025-03-23 13:45:57","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":62,"name":"Hellofest","place":"Batam - Bali International Convention Centre","datetime":"2025-09-09 04:43:55","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":63,"name":"Djakarta Warehouse Project","place":"Bandung - Gelora Bung Karno","datetime":"2025-06-04 07:36:15","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":64,"name":"Festival Musik Indonesia","place":"Yogyakarta - Gelora Bung Karno","datetime":"2024-12-20 13:46:49","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":65,"name":"We The Fest","place":"Batam - Lapangan Golf Cengkareng","datetime":"2025-10-14 12:48:26","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":66,"name":"Java Jazz Festival","place":"Bandung - Trans Studio Bandung","datetime":"2025-03-02 10:48:08","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":67,"name":"Candi Jazz Festival","place":"Malang - Kota Tua Jakarta","datetime":"2024-12-18 05:05:24","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":68,"name":"Pahawang Music Festival","place":"Semarang - Lapangan Golf Cengkareng","datetime":"2024-12-20 12:14:49","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":69,"name":"Djakarta Warehouse Project","place":"Makassar - Trans Studio Bandung","datetime":"2025-01-22 22:19:25","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":70,"name":"Djakarta Warehouse Project","place":"Batam - Lapangan Golf Cengkareng","datetime":"2025-03-15 23:48:19","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":71,"name":"Hellofest","place":"Semarang - Gelora Bung Karno","datetime":"2025-09-08 11:57:13","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":72,"name":"Candi Jazz Festival","place":"Jakarta - Prambanan Temple","datetime":"2024-12-04 23:24:00","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":73,"name":"Pahawang Music Festival","place":"Jakarta - Ancol Beach","datetime":"2025-02-14 16:47:51","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":74,"name":"Synchronize Fest","place":"Jakarta - Gelora Bung Karno","datetime":"2025-03-24 11:55:38","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":75,"name":"We The Fest","place":"Medan - Bali International Convention Centre","datetime":"2025-08-30 08:13:30","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":76,"name":"We The Fest","place":"Jakarta - Lapangan D Senayan","datetime":"2025-06-06 07:03:57","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":77,"name":"Jakarta International BNI Java Jazz Festival","place":"Batam - Taman Ismail Marzuki","datetime":"2025-11-09 07:39:08","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":78,"name":"Prambanan Jazz Festival","place":"Batam - Prambanan Temple","datetime":"2025-01-27 15:17:59","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":79,"name":"Djakarta Warehouse Project","place":"Bandung - Kota Tua Jakarta","datetime":"2025-08-05 12:06:41","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":80,"name":"Java Jazz Festival","place":"Medan - Gelora Bung Karno","datetime":"2025-01-27 13:10:16","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":81,"name":"Candi Jazz Festival","place":"Batam - Trans Studio Bandung","datetime":"2025-10-14 10:49:53","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":82,"name":"Djakarta Warehouse Project","place":"Yogyakarta - Gelora Bung Karno","datetime":"2025-09-07 07:25:58","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":83,"name":"Prambanan Jazz Festival","place":"Semarang - Kota Tua Jakarta","datetime":"2025-03-21 13:27:34","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":84,"name":"Candi Jazz Festival","place":"Semarang - Gelora Bung Karno","datetime":"2025-09-09 09:24:54","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":85,"name":"Festival Musik Indonesia","place":"Bandung - Ancol Beach","datetime":"2025-09-17 06:34:09","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":86,"name":"Festival Musik Indonesia","place":"Malang - Ancol Beach","datetime":"2025-01-06 17:19:39","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":87,"name":"Hellofest","place":"Semarang - Prambanan Temple","datetime":"2025-09-30 04:55:01","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":88,"name":"Djakarta Warehouse Project","place":"Medan - Lapangan Golf Cengkareng","datetime":"2025-10-12 10:56:20","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":89,"name":"Sundown Festival","place":"Bandung - Lapangan D Senayan","datetime":"2025-05-18 19:53:10","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":90,"name":"Jakarta International BNI Java Jazz Festival","place":"Medan - Lapangan Golf Cengkareng","datetime":"2025-04-30 01:15:03","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":91,"name":"Candi Jazz Festival","place":"Semarang - Prambanan Temple","datetime":"2025-05-09 22:07:47","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":92,"name":"Sundown Festival","place":"Malang - Prambanan Temple","datetime":"2025-09-07 19:06:35","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":93,"name":"Festival Musik Indonesia","place":"Bandung - Lapangan D Senayan","datetime":"2025-01-10 11:22:58","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":94,"name":"Festival Musik Indonesia","place":"Bandung - Bali International Convention Centre","datetime":"2024-12-18 04:45:22","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":95,"name":"Jakarta International BNI Java Jazz Festival","place":"Malang - Prambanan Temple","datetime":"2025-02-25 01:32:08","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":96,"name":"Pahawang Music Festival","place":"Surabaya - Kebun Raya Bogor","datetime":"2025-11-21 20:59:47","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":97,"name":"Hellofest","place":"Bali - Trans Studio Bandung","datetime":"2025-09-21 07:19:43","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":98,"name":"Jakarta International BNI Java Jazz Festival","place":"Yogyakarta - Trans Studio Bandung","datetime":"2025-04-04 16:26:05","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":99,"name":"Sundown Festival","place":"Medan - Prambanan Temple","datetime":"2024-12-19 11:10:56","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"},{"id":100,"name":"We The Fest","place":"Makassar - Prambanan Temple","datetime":"2024-12-08 08:59:01","image":"\/storage\/images\/vtO69IGDfnEwWgH1w3wx85qvqJmjkyj1XSQqc9fJ.jpg"}] seharusnya kan sesuai dengan apa yang diketik ini ticket dart saya import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+class TicketRepository {
+  final String baseUrl = "http://192.168.2.140:8000/api"; // URL backend Anda
+
+  /// Fungsi untuk mencari tiket berdasarkan query
+  Future<List<dynamic>> searchTickets(String query) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/tickets/search'), // Endpoint pencarian tiket
+      headers: {'Accept': 'application/json'}, // Header yang diperlukan
+      body: json.encode({'query': query}), // Data query yang dikirim
+    );
+
+    // Cek status response
+    if (response.statusCode == 200) {
+      return json.decode(response.body); // Decode JSON jika berhasil
+    } else {
+      throw Exception('Gagal mengambil data tiket'); // Lempar error jika gagal
+    }
+  }
+}
+ 

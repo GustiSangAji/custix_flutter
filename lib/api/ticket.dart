@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class TicketRepository {
-  final String baseUrl = "http://192.168.2.101:8000/api"; // URL backend Anda
+  final String baseUrl = "http://192.168.2.140:8000/api"; // URL backend Anda
 
   /// Fungsi untuk mencari tiket berdasarkan query
   Future<List<dynamic>> searchTickets(String query) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/tickets/search'), // Endpoint pencarian tiket
+      Uri.parse('$baseUrl/tickets/search?query=$query'), // Endpoint pencarian tiket
       headers: {'Accept': 'application/json'}, // Header yang diperlukan
       body: json.encode({'query': query}), // Data query yang dikirim
     );
