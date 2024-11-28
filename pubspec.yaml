@@ -61,6 +61,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.14
   line_awesome_flutter: ^3.0.1
+  fluttertoast: ^8.2.8
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.1
