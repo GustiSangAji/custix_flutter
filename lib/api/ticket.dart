@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class TicketRepository {
-  final String baseUrl = "http://192.168.2.152:8000/api"; // URL backend Anda
+  final String baseUrl = "http://192.168.2.101:8000/api"; // URL backend Anda
 
   Future<List<dynamic>> getTickets() async {
     final response = await http.get(

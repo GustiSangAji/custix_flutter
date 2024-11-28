@@ -14,12 +14,15 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
   // Set initial value of _currentIndex to 0 (Home screen)
-  int _currentIndex = 0;  // Changed from 1 to 0
+  int _currentIndex = 0; // Changed from 1 to 0
 
   final List<Widget> _screens = const [
     HomeScreen(),
-    CartScreen(),
-    Profile(), 
+    CartScreen(
+      ticketId: '',
+      ticketName: '',
+    ),
+    Profile(),
   ];
 
   SvgPicture svgIcon(String src, {Color? color}) {
@@ -27,8 +30,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
       src,
       height: 24,
       colorFilter: ColorFilter.mode(
-          color ?? Theme.of(context).iconTheme.color!.withOpacity(
-              Theme.of(context).brightness == Brightness.dark ? 0.3 : 1),
+          color ??
+              Theme.of(context).iconTheme.color!.withOpacity(
+                  Theme.of(context).brightness == Brightness.dark ? 0.3 : 1),
           BlendMode.srcIn),
     );
   }
@@ -56,12 +60,14 @@ class _BottomNavBarState extends State<BottomNavBar> {
         items: [
           BottomNavigationBarItem(
             icon: svgIcon("assets/images/icon/home-01.svg"),
-            activeIcon: svgIcon("assets/images/icon/home-01.svg", color: kprimaryColor),
+            activeIcon:
+                svgIcon("assets/images/icon/home-01.svg", color: kprimaryColor),
             label: "Home",
           ),
           BottomNavigationBarItem(
             icon: svgIcon("assets/images/icon/Bag.svg"),
-            activeIcon: svgIcon("assets/images/icon/Bag.svg", color: kprimaryColor),
+            activeIcon:
+                svgIcon("assets/images/icon/Bag.svg", color: kprimaryColor),
             label: "Cart",
           ),
           BottomNavigationBarItem(
@@ -75,4 +81,3 @@ class _BottomNavBarState extends State<BottomNavBar> {
     );
   }
 }
-
