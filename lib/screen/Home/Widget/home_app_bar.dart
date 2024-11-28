@@ -131,7 +131,7 @@ class SearchPageState extends State<SearchPage> {
               itemCount: _searchResults.length,
               itemBuilder: (context, index) {
                 final ticket = _searchResults[index];
-                final String baseUrl = 'http://192.168.2.152:8000/';
+                final String baseUrl = 'http://192.168.2.153:8000/';
                 return ListTile(
                   leading: Image.network(
                     Uri.parse('$baseUrl/${ticket['image']}').toString(),

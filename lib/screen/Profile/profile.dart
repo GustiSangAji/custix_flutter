@@ -189,7 +189,7 @@ class ProfileState extends State<Profile> {
                   CircleAvatar(
                     radius: 60,
                     backgroundImage: NetworkImage(
-                      'http://192.168.2.152:8000$photo',
+                      'http://192.168.2.153:8000$photo',
                     ),
                     backgroundColor:
                         Colors.grey[200], // Untuk background warna jika loading

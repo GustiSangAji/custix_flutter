@@ -20,7 +20,7 @@ class TicketDetailState extends State<TicketDetail> {
   Widget build(BuildContext context) {
     // Mengambil objek ticket dari widget
     final ticket = widget.ticket;
-    const String baseUrl = 'http://192.168.2.152:8000/storage/';
+    const String baseUrl = 'http://192.168.2.153:8000/storage/';
     // Menghitung total harga berdasarkan jumlah tiket
     final double totalPrice = ticket.price * ticketCount;
 
@@ -288,5 +288,5 @@ class TicketDetailState extends State<TicketDetail> {
         ],
       ),
     );
-  }
+  } 
 }

@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Fungsi untuk mengambil data tiket
   Future<void> fetchTickets() async {
-    final url = Uri.parse('http://192.168.2.152:8000/api/tickets/limited');
+    final url = Uri.parse('http://192.168.2.153:8000/api/tickets/limited');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -47,12 +47,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Fungsi untuk mengambil data slider dari API
   Future<void> fetchSliderImages() async {
-    final url = Uri.parse('http://192.168.2.152:8000/api/setting');
+    final url = Uri.parse('http://192.168.2.153:8000/api/setting');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        String baseUrl = 'http://192.168.2.152:8000'; // Base URL server Anda
+        String baseUrl = 'http://192.168.2.153:8000'; // Base URL server Anda
         setState(() {
           // Gabungkan base URL dengan path gambar
           sliderImages = [

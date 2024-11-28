@@ -4,7 +4,6 @@ import 'package:custix/api/api_service.dart';
 import 'package:custix/model/ticket_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:custix/api/auth.dart';
-import 'package:intl/intl.dart';
 
 class add_Tiket extends StatefulWidget {
   final String? selectedId;
@@ -148,6 +147,7 @@ class _AddTiketPageState extends State<add_Tiket> {
     }
 
     final ticketData = Ticket(
+      id: 0,
       uuid: widget.selectedId ?? '',
       kodeTiket: _kodeTiketController.text,
       name: _nameController.text,

@@ -37,7 +37,7 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
 
   /// Fetch tickets from API with pagination
   Future<void> fetchAllTickets() async {
-    final String baseUrl = 'http://192.168.2.152:8000/api/tickets';
+    final String baseUrl = 'http://192.168.2.153:8000/api/tickets';
     try {
       final response = await http.get(Uri.parse('$baseUrl?page=$currentPage'));
       if (response.statusCode == 200) {

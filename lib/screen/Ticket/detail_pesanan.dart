@@ -15,7 +15,7 @@ class DetailPesananPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const String baseUrl = 'http://192.168.2.152:8000/storage/';
+    const String baseUrl = 'http://192.168.2.153:8000/storage/';
 
     // Menghitung total harga
     final double totalPrice = ticket.price * quantity;
