@@ -4,7 +4,6 @@ import 'package:custix/api/api_service.dart';
 import 'package:custix/model/ticket_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:custix/api/auth.dart';
-import 'package:intl/intl.dart';
 
 class add_Tiket extends StatefulWidget {
   final String? selectedId;
@@ -66,10 +65,10 @@ class _AddTiketPageState extends State<add_Tiket> {
         _statusTiket =
             ticket['status'] == 'available' ? 'Tersedia' : 'Tidak Tersedia';
         _imageUrl = ticket['image'] != null
-            ? 'http://192.168.2.101:8000/storage/${ticket['image']}'
+            ? 'http://192.168.2.140:8000/storage/${ticket['image']}'
             : null;
         _bannerUrl = ticket['banner'] != null
-            ? 'http://192.168.2.101:8000/storage/${ticket['banner']}'
+            ? 'http://192.168.2.140:8000/storage/${ticket['banner']}'
             : null;
       });
     } catch (e) {
@@ -148,6 +147,7 @@ class _AddTiketPageState extends State<add_Tiket> {
     }
 
     final ticketData = Ticket(
+      id: 0,
       uuid: widget.selectedId ?? '',
       kodeTiket: _kodeTiketController.text,
       name: _nameController.text,

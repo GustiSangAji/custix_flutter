@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:custix/model/DashboardData.dart'; // Pastikan Anda memiliki model DashboardData
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:custix/model/user.dart';
 
 // Model untuk menangani response login
 class AuthResponse {
@@ -29,7 +30,7 @@ class AuthRepository {
   }
 
   // Fungsi login
-  Future<bool> login(String email, String password) async {
+  Future<User> login(String email, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
       headers: {
@@ -44,13 +45,26 @@ class AuthRepository {
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
-      final authResponse = AuthResponse.fromJson(json);
 
+      // Parsing token
+      final token = json['token'];
+
+      // Parsing user
+      final user = User.fromJson(json['user']);
+
+      // Menyimpan token ke SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', authResponse.token); // Menyimpan token
-      await prefs.setBool('isLoggedIn', true); // Menyimpan status login
+      await prefs.setString('token', token);
+      await prefs.setBool('isLoggedIn', true);
 
-      return authResponse.status; // Mengembalikan status login
+      // Menyimpan data user tambahan (opsional)
+      await prefs.setString('user_uuid', user.uuid);
+      await prefs.setString('user_name', user.nama);
+      await prefs.setString('user_email', user.email); // Menyimpan email
+      await prefs.setString('user_role', user.role.name);
+      await prefs.setString('photo', user.photo);
+      // Mengembalikan model User
+      return user;
     } else {
       final errorResponse = jsonDecode(response.body);
       throw Exception('Login failed: ${errorResponse['message']}');
@@ -169,6 +183,10 @@ class AuthRepository {
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('token'); // Menghapus token
+    await prefs.remove('user_uuid');
+    await prefs.remove('user_name');
+    await prefs.remove('user_email');
+    await prefs.remove('user_role');
     await prefs.setBool('isLoggedIn', false); // Mengubah status login
   }
 

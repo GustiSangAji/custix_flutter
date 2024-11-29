@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:custix/model/tiket_model.dart';
+import 'package:custix/model/ticket_model.dart';
 import 'package:custix/screen/constants.dart';
 
 class ProductCard extends StatelessWidget {
+  final Ticket ticket;
+  final bool isCompact; // Tambahkan flag compact untuk grid layout
+
   const ProductCard({
     super.key,
     required this.ticket,
-    this.isCompact = false, 
+    this.isCompact = false, // Default tidak compact
   });
-
-  final bool isCompact; 
-  final Ticket ticket;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,9 @@ class ProductCard extends StatelessWidget {
         DateFormat('dd MMM yyyy', 'id').format(ticket.datetime);
 
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.pushNamed(context, '/ticket_detail', arguments: ticket);
+      },
       child: Container(
         width: isCompact ? null : 350, 
         decoration: BoxDecoration(
@@ -48,7 +50,7 @@ class ProductCard extends StatelessWidget {
               child: Image.network(
                 ticket.fullImageUrl,
                 width: double.infinity,
-                height: isCompact ? 150 : 180, 
+                height: isCompact ? 120 : 180, // Sesuaikan tinggi untuk compact
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => const Icon(
                   Icons.broken_image,

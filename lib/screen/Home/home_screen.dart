@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:custix/screen/Home/Widget/image_slider.dart';
 import 'package:custix/screen/Home/Widget/product_cart.dart';
-import 'package:custix/model/tiket_model.dart';
+import 'package:custix/model/ticket_model.dart';
 import 'package:custix/screen/constants.dart';
 import 'Widget/all_products_screen.dart';
 import 'Widget/home_app_bar.dart';

@@ -1,4 +1,5 @@
 class Ticket {
+  final int id; // Tambahkan atribut id
   final String uuid;
   final String kodeTiket;
   final String name;
@@ -13,6 +14,7 @@ class Ticket {
   final String banner;
 
   Ticket({
+    required this.id, // Tambahkan ke konstruktor
     required this.uuid,
     required this.kodeTiket,
     required this.name,
@@ -30,6 +32,7 @@ class Ticket {
   // Mengonversi objek Ticket ke Map<String, dynamic> untuk keperluan serialisasi JSON
   Map<String, dynamic> toJson() {
     return {
+      'id': id, // Tambahkan id ke dalam Map
       'uuid': uuid,
       'kode_tiket': kodeTiket,
       'name': name,
@@ -45,9 +48,12 @@ class Ticket {
     };
   }
 
+  String get fullImageUrl => 'http://192.168.2.140:8000/storage/$image';
+
   // Konstruktor fromJson untuk membuat objek Ticket dari Map<String, dynamic>
   factory Ticket.fromJson(Map<String, dynamic> json) {
     return Ticket(
+      id: json['id'] ?? 0, // Pastikan id diambil dari JSON
       uuid: json['uuid'] ?? '',
       kodeTiket: json['kode_tiket'] ?? '',
       name: json['name'] ?? '',

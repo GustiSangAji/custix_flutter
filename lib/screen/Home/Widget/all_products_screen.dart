@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:custix/model/tiket_model.dart';
+import 'package:custix/model/ticket_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shimmer/shimmer.dart';
