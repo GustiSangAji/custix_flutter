@@ -38,7 +38,8 @@ class TicketDetailState extends State<TicketDetail>
       decimalDigits: 0,
     ).format(totalPrice);
 
-    return Scaffold(appBar: const CustomAppBar(
+    return Scaffold(
+      appBar: const CustomAppBar(
         showLogo: false,
         titleText: "Lihat Semua",
         titleStyle: TextStyle(
@@ -118,7 +119,6 @@ class TicketDetailState extends State<TicketDetail>
                           ),
                         ),
                         const SizedBox(height: 8),
-                        // Informasi Acara (Durasi, Rating, dll)
                         Row(
                           children: [
                             // Durasi acara
@@ -129,26 +129,10 @@ class TicketDetailState extends State<TicketDetail>
                                 color: Colors.grey.shade100,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text(
-                                '2 Jam',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            // Rating acara
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Text(
-                                'R13+',
-                                style: TextStyle(
+                              child: Text(
+                                DateFormat('HH.mm').format(ticket
+                                    .datetime), // Menampilkan jam dan menit
+                                style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.black,
                                 ),
@@ -173,7 +157,7 @@ class TicketDetailState extends State<TicketDetail>
                               ),
                             ),
                           ],
-                        ),
+                        )
                       ],
                     ),
                   ],
