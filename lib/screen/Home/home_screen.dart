@@ -5,6 +5,7 @@ import 'package:custix/model/tiket_model.dart';
 import 'package:custix/screen/constants.dart';
 import 'Widget/all_products_screen.dart';
 import 'Widget/home_app_bar.dart';
+import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -19,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentSlider = 0;
   List<Ticket> tickets = [];
   List<String> sliderImages = [];
+  bool isLoading = true; // Variabel untuk status loading
 
   @override
   void initState() {
@@ -30,6 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Fungsi untuk mengambil data tiket
   Future<void> fetchTickets() async {
     final url = Uri.parse('http://192.168.2.140:8000/api/tickets/limited');
+    setState(() {
+      isLoading = true; // Set isLoading true saat data sedang diambil
+    });
+
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -42,6 +48,10 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (error) {
       print('Error fetching tickets: $error');
+    } finally {
+      setState(() {
+        isLoading = false; // Set isLoading false setelah data selesai diambil
+      });
     }
   }
 
@@ -54,7 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
         final Map<String, dynamic> data = json.decode(response.body);
         String baseUrl = 'http://192.168.2.140:8000'; // Base URL server Anda
         setState(() {
-          // Gabungkan base URL dengan path gambar
           sliderImages = [
             if (data['carousel1'] != null) baseUrl + data['carousel1'],
             if (data['carousel2'] != null) baseUrl + data['carousel2'],
@@ -90,7 +99,23 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CustomAppBar(),
             ),
             sliderImages.isEmpty
-                ? const Center(child: CircularProgressIndicator())
+                ? SizedBox(
+                    height: 200, // Ukuran sesuai kebutuhan
+                    child: Padding(
+                      padding: const EdgeInsets.all(
+                          16.0), // Padding kiri, kanan, atas, bawah
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
                 : ImageSlider(
                     currentSlide: currentSlider,
                     onChange: (value) {
@@ -109,31 +134,54 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Spesial untuk anda",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AllProductsScreen(),
+                      // Shimmer effect for the title "Spesial untuk anda"
+                      isLoading
+                          ? Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 160, // Set the width for shimmer text
+                                height: 20, // Set the height for shimmer text
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              "Spesial untuk anda",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
-                          );
-                        },
-                        child: const Text(
-                          "Lihat semua",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
+
+                      // Shimmer effect for the text "Lihat semua"
+                      isLoading
+                          ? Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 80, // Set the width for shimmer text
+                                height: 20, // Set the height for shimmer text
+                                color: Colors.white,
+                              ),
+                            )
+                          : GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AllProductsScreen(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Lihat semua",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ),
                     ],
                   ),
                 ],
@@ -141,8 +189,38 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(
               height: 300,
-              child: tickets.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
+              child: isLoading
+                  ? SizedBox(
+                      height: 300,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        physics: const PageScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        itemCount: 5, // Set itemCount sementara untuk shimmer
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              left: index == 0 ? 15 : 10,
+                              right: index == 5 - 1
+                                  ? 15
+                                  : 0, // Sama seperti itemCount
+                            ),
+                            child: Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 250, // Ukuran kartu produk
+                                height: 150, // Ukuran kartu produk
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    )
                   : ListView.builder(
                       scrollDirection: Axis.horizontal,
                       physics: const PageScrollPhysics(),
