@@ -1,189 +1,223 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 
-class CartScreen extends StatefulWidget {
-  final String ticketId;
-  final String ticketName;
-  final int? queuePosition; // Menambahkan parameter queuePosition
-  final bool accessActive; // Menambahkan parameter accessActive
-
-  const CartScreen({
-    Key? key,
-    required this.ticketId,
-    required this.ticketName,
-    this.queuePosition, // Menambahkan parameter opsional queuePosition
-    this.accessActive = false, // Menambahkan parameter opsional accessActive
-  }) : super(key: key);
-
-  @override
-  State<CartScreen> createState() => _WaitingRoomState();
-}
-
-class _WaitingRoomState extends State<CartScreen> {
-  bool accessGranted = false;
-  Timer? _timer;
-  bool isTimeout = false; // Untuk menandakan apakah proses antrian terlalu lama
-
-  @override
-  void initState() {
-    super.initState();
-    checkStatus(); // Check status on initial load
-    _timer = Timer.periodic(Duration(seconds: 5), (_) => checkStatus());
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel(); // Cancel timer on dispose
-    removeFromQueue(); // Remove user from queue
-    super.dispose();
-  }
-
-  Future<void> checkStatus() async {
-    try {
-      final response = await Dio().get(
-        'https://192.168.2.101:8000/waiting-room-status',
-        queryParameters: {'ticket_id': widget.ticketId},
-      );
-
-      setState(() {
-        accessGranted = response.data['accessGranted'];
-      });
-
-      if (accessGranted) {
-        _timer?.cancel(); // Stop the timer
-        await removeFromQueue();
-        Navigator.pushReplacementNamed(
-          context,
-          '/TicketDetail',
-          arguments: {'name': widget.ticketName.replaceAll(' ', '-')},
-        );
-      }
-    } catch (error) {
-      print('Error checking status: $error');
-      // Handle timeout or network issues
-      setState(() {
-        isTimeout = true;
-      });
-    }
-  }
-
-  Future<void> removeFromQueue() async {
-    try {
-      final userId = await getUserId();
-      if (userId != null) {
-        await Dio().post(
-          'https://example.com/clear-access',
-          data: {'user_id': userId},
-        );
-        print('User removed from queue');
-      }
-    } catch (error) {
-      print('Error removing user from queue: $error');
-    }
-  }
-
-  Future<String?> getUserId() async {
-    // Simulate fetching user ID from local storage or other source
-    return 'example_user_id';
-  }
+class CartScreen extends StatelessWidget {
+  const CartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlue[50],
-      body: Center(
-        child: Card(
-          elevation: 8,
-          margin: EdgeInsets.all(16),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Waiting Room...',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16),
-                accessGranted
-                    ? Column(
+      appBar: AppBar(
+        title: const Text('Tiket Saya'),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.black,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Expanded(
+              child: FutureBuilder<List<Order>>(
+                future: fetchOrders(), // Mengambil data pesanan
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Terjadi kesalahan: ${snapshot.error}'),
+                    );
+                  }
+
+                  final orders = snapshot.data ?? [];
+
+                  if (orders.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            'Slot tersedia! Anda akan segera diarahkan...',
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontSize: 16,
-                            ),
-                            textAlign: TextAlign.center,
+                          Image.asset(
+                            'assets/icons/ticket_tiket-saya.png',
+                            width: 100,
+                            height: 100,
                           ),
-                          SizedBox(height: 16),
-                          CircularProgressIndicator(
-                            color: Colors.green,
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Kamu belum memiliki tiket, silakan beli tiket terlebih dahulu.',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                         ],
-                      )
-                    : isTimeout
-                        ? Column(
-                            children: [
-                              Text(
-                                'Waktu antrian terlalu lama. Silakan coba lagi nanti.',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 16,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(
-                                      context); // Kembali ke halaman sebelumnya
-                                },
-                                child: Text('Kembali'),
-                              ),
-                            ],
-                          )
-                        : Column(
-                            children: [
-                              Text(
-                                'Terlalu banyak pengguna mengakses halaman ini. Antrian Anda: ',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 16,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              Text(
-                                widget.queuePosition?.toString() ?? '-',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Silakan tunggu hingga pengguna selesai.\nEstimasi 5 Menit',
-                                style: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 14,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              SizedBox(height: 16),
-                              CircularProgressIndicator(
-                                color: Colors.blue,
-                              ),
-                            ],
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    itemCount: orders.length,
+                    itemBuilder: (context, index) {
+                      final order = orders[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-              ],
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                // Gambar tiket
+
+                                const SizedBox(width: 16),
+                                // Info tiket
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        order.ticket.name,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        '${formatDate(order.ticket.datetime)} | ${order.jumlahPemesanan} Tiket',
+                                        style:
+                                            TextStyle(color: Colors.grey[600]),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Pembelian pada ${formatDate(order.ticket.createdAt)}',
+                                        style:
+                                            TextStyle(color: Colors.grey[600]),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      // Status dan tombol
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Chip(
+                                            label: Text(
+                                              order.ticketDetail.status ==
+                                                      'Used'
+                                                  ? 'Sudah Digunakan'
+                                                  : 'Belum Digunakan',
+                                              style: TextStyle(
+                                                color:
+                                                    order.ticketDetail.status ==
+                                                            'Used'
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pushNamed(
+                                                context,
+                                                '/orderDetail',
+                                                arguments: OrderDetailArguments(
+                                                    order.id, index),
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              foregroundColor: Colors.white,
+                                              backgroundColor: Colors.grey[800],
+                                            ),
+                                            child: const Text('Lihat Detail'),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
+
+  String formatDate(String date) {
+    final DateTime dateTime = DateTime.parse(date);
+    final formattedDate = "${dateTime.day}-${dateTime.month}-${dateTime.year}";
+    return formattedDate;
+  }
+
+  Future<List<Order>> fetchOrders() async {
+    // Simulasikan pengambilan data
+    await Future.delayed(const Duration(seconds: 2)); // Simulasi loading
+    return [
+      Order(
+        id: 1,
+        ticket: Ticket(
+            name: 'Konser Musik',
+            image: 'image.jpg',
+            datetime: '2024-11-30T20:00:00',
+            createdAt: '2024-11-10T10:00:00'),
+        ticketDetail: TicketDetail(status: 'Used'),
+        jumlahPemesanan: 2,
+      ),
+      // Tambahkan data lainnya sesuai kebutuhan
+    ];
+  }
+}
+
+// Kelas untuk data order dan tiket
+class Order {
+  final int id;
+  final Ticket ticket;
+  final TicketDetail ticketDetail;
+  final int jumlahPemesanan;
+
+  Order({
+    required this.id,
+    required this.ticket,
+    required this.ticketDetail,
+    required this.jumlahPemesanan,
+  });
+}
+
+class Ticket {
+  final String name;
+  final String image;
+  final String datetime;
+  final String createdAt;
+
+  Ticket({
+    required this.name,
+    required this.image,
+    required this.datetime,
+    required this.createdAt,
+  });
+}
+
+class TicketDetail {
+  final String status;
+
+  TicketDetail({required this.status});
+}
+
+class OrderDetailArguments {
+  final int orderId;
+  final int qrIndex;
+
+  OrderDetailArguments(this.orderId, this.qrIndex);
 }

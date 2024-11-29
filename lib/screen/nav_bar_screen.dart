@@ -18,10 +18,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   final List<Widget> _screens = const [
     HomeScreen(),
-    CartScreen(
-      ticketId: '',
-      ticketName: '',
-    ),
+    CartScreen(),
     Profile(),
   ];
 

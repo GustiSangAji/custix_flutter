@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:custix/screen/notif/notif.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:custix/screen/constants.dart';
@@ -276,7 +277,14 @@ class ProfileState extends State<Profile> {
                     ),
                   ),
                   onTap: () {
-                    if (tile.title == "Dashboard") {
+                    if (tile.title == "Notifications") {
+                      // Navigasi ke halaman Notifications
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NotificationsScreen()),
+                      );
+                    } else if (tile.title == "Dashboard") {
                       Navigator.pushNamed(context, '/dashboard');
                     } else if (tile.title == "Logout") {
                       logout();
